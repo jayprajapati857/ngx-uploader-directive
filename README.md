@@ -15,7 +15,7 @@ npm install ng-file-uploader --save
 
 1. Import `NgFileUploaderModule` into your AppModule or in module where you will use it.
 
-```js
+```ts
 // app.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -41,7 +41,7 @@ export class AppModule { }
 
 **or** Import `NgFileUploaderModule` into your SharedModule. This could be usefull if your project has nested Modules.
 
-```js
+```ts
 // shared.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -61,7 +61,7 @@ export class SharedModule { }
 
 2. Data structures of Input events and upload output events of files.
 
-```js
+```ts
 
 /**
  * File Upload Options.
@@ -139,7 +139,7 @@ export interface IUploadOutput {
 
 **Component code**
 
-```js
+```ts
 // tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-file-uploader';
@@ -260,10 +260,12 @@ export class AppComponent {
 ## Running demo on local machine
 
 ```console
-npm start
-```
 
-- If you face any problem in running demo do `npm install` for libraray and then try with `npm start`.
+npm install
+
+npm start
+
+```
 
 ### LICENCE
 
