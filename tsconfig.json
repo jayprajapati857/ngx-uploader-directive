@@ -19,11 +19,11 @@
       "dom"
     ],
     "paths": {
-      "ng-file-uploader": [
-        "dist/ng-file-uploader"
+      "ngx-uploader-directive": [
+        "dist/ngx-uploader-directive"
       ],
-      "ng-file-uploader/*": [
-        "dist/ng-file-uploader/*"
+      "ngx-uploader-directive/*": [
+        "dist/ngx-uploader-directive/*"
       ]
     }
   }

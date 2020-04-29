@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-file-uploader": {
+    "ngx-uploader-directive": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ng-file-uploader",
+            "outputPath": "dist/ngx-uploader-directive",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -62,18 +62,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "ng-file-uploader:build"
+            "browserTarget": "ngx-uploader-directive:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ng-file-uploader:build:production"
+              "browserTarget": "ngx-uploader-directive:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ng-file-uploader:build"
+            "browserTarget": "ngx-uploader-directive:build"
           }
         },
         "test": {
@@ -107,7 +107,7 @@
         }
       }
     },
-    "ng-file-uploader-e2e": {
+    "ngx-uploader-directive-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -116,11 +116,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "ng-file-uploader:serve"
+            "devServerTarget": "ngx-uploader-directive:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "ng-file-uploader:serve:production"
+              "devServerTarget": "ngx-uploader-directive:serve:production"
             }
           }
         },
@@ -135,33 +135,33 @@
         }
       }
     },
-    "ng-file-uploader-lib": {
-      "root": "projects/ng-file-uploader",
-      "sourceRoot": "projects/ng-file-uploader/src",
+    "ngx-uploader-directive-lib": {
+      "root": "projects/ngx-uploader-directive",
+      "sourceRoot": "projects/ngx-uploader-directive/src",
       "projectType": "library",
       "prefix": "ng",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "tsConfig": "projects/ng-file-uploader/tsconfig.lib.json",
-            "project": "projects/ng-file-uploader/ng-package.json"
+            "tsConfig": "projects/ngx-uploader-directive/tsconfig.lib.json",
+            "project": "projects/ngx-uploader-directive/ng-package.json"
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/ng-file-uploader/src/test.ts",
-            "tsConfig": "projects/ng-file-uploader/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-file-uploader/karma.conf.js"
+            "main": "projects/ngx-uploader-directive/src/test.ts",
+            "tsConfig": "projects/ngx-uploader-directive/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-uploader-directive/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/ng-file-uploader/tsconfig.lib.json",
-              "projects/ng-file-uploader/tsconfig.spec.json"
+              "projects/ngx-uploader-directive/tsconfig.lib.json",
+              "projects/ngx-uploader-directive/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -171,5 +171,5 @@
       }
     }
   },
-  "defaultProject": "ng-file-uploader"
+  "defaultProject": "ngx-uploader-directive"
 }

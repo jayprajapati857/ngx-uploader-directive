@@ -1,25 +1,25 @@
-# ng-file-uploader
+# ngx-uploader-directive
 
 Angular 9 File Uploader.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
 
 ## Installation
 
-Add `ng-file-uploader` module as dependency to your project.
+Add `ngx-uploader-directive` module as dependency to your project.
 
 ```console
-npm install ng-file-uploader --save
+npm install ngx-uploader-directive --save
 ```
 
 ## Usage
 
-1. Import `NgFileUploaderModule` into your AppModule or in module where you will use it.
+1. Import `NgxUploaderDirectiveModule` into your AppModule or in module where you will use it.
 
 ```ts
 // app.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgFileUploaderModule } from 'ng-file-uploader';
+import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -31,7 +31,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgFileUploaderModule
+    NgxUploaderDirectiveModule
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -39,19 +39,19 @@ import { AppComponent } from './app.component';
 export class AppModule { }
 ```
 
-**or** Import `NgFileUploaderModule` into your SharedModule. This could be usefull if your project has nested Modules.
+**or** Import `NgxUploaderDirectiveModule` into your SharedModule. This could be usefull if your project has nested Modules.
 
 ```ts
 // shared.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgFileUploaderModule } from 'ng-file-uploader';
+import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 
 @NgModule({  
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgFileUploaderModule
+    NgxUploaderDirectiveModule
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -106,7 +106,7 @@ export interface IUploadProgress {
 }
 
 /**
- * Upload Input events that can be emit to ng-file-uploader.
+ * Upload Input events that can be emit to ngx-uploader-directive.
  */
 export interface IUploadInput {
     type: 'uploadAll' | 'uploadFile' | 'cancel' | 'cancelAll' | 'remove' | 'removeAll'; // Input event type.
@@ -122,7 +122,7 @@ export interface IUploadInput {
 }
 
 /**
- * File Upload Output Events that emitted by ng-file-uploader.
+ * File Upload Output Events that emitted by ngx-uploader-directive.
  */
 export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver' | 'dragOut' | 'drop' | 'removed' | 'removedAll' | 'rejected' | 'error'; // Output events.
@@ -142,7 +142,7 @@ export interface IUploadOutput {
 ```ts
 // tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
-import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-file-uploader';
+import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-uploader-directive';
 
 @Component({
   selector: 'app-root',
@@ -151,13 +151,13 @@ import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-f
 })
 
 export class AppComponent {
-  title = 'ng-file-uploader';
+  title = 'ngx-uploader-directive';
   options: IUploadOptions;
   formData: FormData;
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
-  uploadUrl = 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile';
+  uploadUrl = 'upload url';
 
 
   /**
@@ -236,18 +236,19 @@ export class AppComponent {
     this.uploadInput.emit({ type: 'removeAll' });
   }
 }
+
 ```
 
 **Html code**
 
 ```html
-<div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
+<div class="drop-container" ngxFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
   [uploadInput]="uploadInput" [ngClass]="{ 'is-drop-over': dragOver }">
   <h1>Drag &amp; Drop</h1>
 </div>
 
 <label class="upload-button">
-  <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+  <input type="file" ngxFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
     [uploadInput]="uploadInput" multiple>
   or choose file(s)
 </label>
@@ -260,13 +261,11 @@ export class AppComponent {
 ## Running demo on local machine
 
 ```console
-
 npm install
 
 npm start
-
 ```
 
 ### LICENCE
 
-[MIT](https://github.com/jayprajapati857/ng-file-uploader/blob/master/LICENSE)
+[MIT](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)

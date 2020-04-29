@@ -19,13 +19,13 @@
   </li>
 </ul>
 
-<div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
+<div class="drop-container" ngxFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
   [uploadInput]="uploadInput" [ngClass]="{ 'is-drop-over': dragOver }">
   <h1>Drag &amp; Drop</h1>
 </div>
 
 <label class="upload-button">
-  <input type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+  <input type="file" ngxFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
     [uploadInput]="uploadInput" multiple>
   or choose file(s)
 </label>

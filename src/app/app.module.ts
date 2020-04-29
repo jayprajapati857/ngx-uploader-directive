@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgFileUploaderModule } from 'ng-file-uploader';
+import { NgxUploaderDirectiveModule } from 'ngx-uploader-directive';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,7 +12,7 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgFileUploaderModule
+    NgxUploaderDirectiveModule
   ],
   providers: [],
   bootstrap: [AppComponent]

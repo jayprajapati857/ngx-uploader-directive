@@ -23,23 +23,23 @@
 
 // tslint:disable: max-line-length
 import { Directive, Input, EventEmitter, Output, ElementRef, HostListener } from '@angular/core';
-import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ng-file-uploader-models';
+import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ngx-uploader-directive-models';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { NgFileUploaderService } from '../ng-file-uploader.service';
+import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
 
 @Directive({
   // tslint:disable-next-line: directive-selector
-  selector: '[ngFileDrop]'
+  selector: '[ngxFileDrop]'
 })
 
-export class NgFileDropDirective {
+export class NgxUploaderDropDirective {
 
   @Input() options: IUploadOptions;
   @Input() uploadInput: EventEmitter<IUploadInput>;
   @Output() uploadOutput: EventEmitter<IUploadOutput>;
 
-  uploadService: NgFileUploaderService;
+  uploadService: NgxUploaderDirectiveService;
   element: HTMLInputElement;
 
   subscriptions: Array<Subscription>;
@@ -58,7 +58,7 @@ export class NgFileDropDirective {
     const allowedFileTypes = this.options.allowedFileTypes;
     const maxFileUploads = this.options.maxFileUploads;
     const maxFileSize = this.options.maxFileSize;
-    this.uploadService = new NgFileUploaderService(concurrency, this.options.maxFilesToAddInSingleRequest, allowedFileTypes, maxFileUploads, maxFileSize, this.httpClient, this.options.logs);
+    this.uploadService = new NgxUploaderDirectiveService(concurrency, this.options.maxFilesToAddInSingleRequest, allowedFileTypes, maxFileUploads, maxFileSize, this.httpClient, this.options.logs);
 
     // file upload element
     this.element = this.elementRef.nativeElement;

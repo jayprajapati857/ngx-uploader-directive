@@ -64,7 +64,7 @@ export interface IUploadProgress {
 }
 
 /**
- * Upload Input events that can be emit to ng-file-uploader.
+ * Upload Input events that can be emit to ngx-uploader-directive.
  */
 export interface IUploadInput {
     type: 'uploadAll' | 'uploadFile' | 'cancel' | 'cancelAll' | 'remove' | 'removeAll'; // Input event type.
@@ -80,7 +80,7 @@ export interface IUploadInput {
 }
 
 /**
- * File Upload Output Events that emitted by ng-file-uploader.
+ * File Upload Output Events that emitted by ngx-uploader-directive.
  */
 export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver'

@@ -1,6 +1,6 @@
 // tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
-import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-file-uploader';
+import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-uploader-directive';
 
 @Component({
   selector: 'app-root',
@@ -9,14 +9,13 @@ import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-f
 })
 
 export class AppComponent {
-  title = 'ng-file-uploader';
+  title = 'ngx-uploader-directive';
   options: IUploadOptions;
   formData: FormData;
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
-  uploadUrl = 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile';
-
+  uploadUrl = 'upload url';
 
   /**
    * Default Constructor

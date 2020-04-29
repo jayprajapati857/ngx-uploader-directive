@@ -23,7 +23,7 @@
 
 // tslint:disable: no-console
 import { Injectable, EventEmitter } from '@angular/core';
-import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ng-file-uploader-models';
+import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ngx-uploader-directive-models';
 import { Observable, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { HttpRequest, HttpClient, HttpEventType, HttpHandler } from '@angular/common/http';
@@ -32,7 +32,7 @@ import { HttpRequest, HttpClient, HttpEventType, HttpHandler } from '@angular/co
 //   providedIn: 'root'
 // })
 
-export class NgFileUploaderService {
+export class NgxUploaderDirectiveService {
 
   queue: Array<ISelectedFile>;
   subscriptions: Array<{ id: string, sub: Subscription }>;

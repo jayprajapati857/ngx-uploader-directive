@@ -20,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'ng-file-uploader'`, () => {
+  it(`should have as title 'ngx-uploader-directive'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('ng-file-uploader');
+    expect(app.title).toEqual('ngx-uploader-directive');
   });
 
   it('should render title in a h1 tag', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to ng-file-uploader!');
+    expect(compiled.querySelector('h1').textContent).toContain('Welcome to ngx-uploader-directive!');
   });
 });

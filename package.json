@@ -1,24 +1,24 @@
 {
-  "name": "ng-file-uploader",
+  "name": "ngx-uploader-directive",
   "version": "1.0.0",
   "description": "Angular file uploader.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jayprajapati857/ng-file-uploader.git"
+    "url": "https://github.com/jayprajapati857/ngx-uploader-directive.git"
   },
   "authors": [
     "Jay Prajapati <jayprajapati857@gmail.com>"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jayprajapati857/ng-file-uploader/issues"
+    "url": "https://github.com/jayprajapati857/ngx-uploader-directive/issues"
   },
-  "homepage": "https://github.com/jayprajapati857/ng-file-uploader",
+  "homepage": "https://github.com/jayprajapati857/ngx-uploader-directive",
   "keywords": [
     "angular",
     "directive",
     "typescript",
-    "ng-file-uploader",
+    "ngx-uploader-directive",
     "file upload directive",
     "angular-file-uploader",
     "angular file uploader"
@@ -26,16 +26,16 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/jayprajapati857/ng-file-uploader/blob/master/LICENSE"
+      "url": "https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE"
     }
   ],
   "scripts": {
     "ng": "ng",
-    "start": "ng build ng-file-uploader-lib && npm install && ng serve --open",
-    "dev": "ng build ng-file-uploader-lib && ng serve",
+    "start": "ng build ngx-uploader-directive-lib && npm install && ng serve --open",
+    "dev": "ng build ngx-uploader-directive-lib && ng serve",
     "build": "ng build",
-    "build:lib": "ng build ng-file-uploader-lib",
-    "build:prod": "ng build ng-file-uploader-lib",
+    "build:lib": "ng build ngx-uploader-directive-lib",
+    "build:prod": "ng build ngx-uploader-directive-lib",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

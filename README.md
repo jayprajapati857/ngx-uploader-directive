@@ -1,14 +1,14 @@
-# ng-file-uploader
+# ngx-uploader-directive
 
 Angular 9 File Uploader.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
 
 ## Installation
 
-Add `ng-file-uploader` module as dependency to your project.
+Add `ngx-uploader-directive` module as dependency to your project.
 
 ```console
-npm install ng-file-uploader --save
+npm install ngx-uploader-directive --save
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ npm install ng-file-uploader --save
 // app.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgFileUploaderModule } from 'ng-file-uploader';
+import { NgFileUploaderModule } from 'ngx-uploader-directive';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -45,7 +45,7 @@ export class AppModule { }
 // shared.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgFileUploaderModule } from 'ng-file-uploader';
+import { NgFileUploaderModule } from 'ngx-uploader-directive';
 
 @NgModule({  
   imports: [
@@ -106,7 +106,7 @@ export interface IUploadProgress {
 }
 
 /**
- * Upload Input events that can be emit to ng-file-uploader.
+ * Upload Input events that can be emit to ngx-uploader-directive.
  */
 export interface IUploadInput {
     type: 'uploadAll' | 'uploadFile' | 'cancel' | 'cancelAll' | 'remove' | 'removeAll'; // Input event type.
@@ -122,7 +122,7 @@ export interface IUploadInput {
 }
 
 /**
- * File Upload Output Events that emitted by ng-file-uploader.
+ * File Upload Output Events that emitted by ngx-uploader-directive.
  */
 export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver' | 'dragOut' | 'drop' | 'removed' | 'removedAll' | 'rejected' | 'error'; // Output events.
@@ -142,7 +142,7 @@ export interface IUploadOutput {
 ```ts
 // tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
-import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-file-uploader';
+import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-uploader-directive';
 
 @Component({
   selector: 'app-root',
@@ -151,7 +151,7 @@ import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-f
 })
 
 export class AppComponent {
-  title = 'ng-file-uploader';
+  title = 'ngx-uploader-directive';
   options: IUploadOptions;
   formData: FormData;
   files: Array<ISelectedFile>;
@@ -269,4 +269,4 @@ npm start
 
 ### LICENCE
 
-[MIT](https://github.com/jayprajapati857/ng-file-uploader/blob/master/LICENSE)
+[MIT](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)
