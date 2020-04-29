@@ -1,11 +1,9 @@
 # ng-file-uploader
----
 
 Angular 9 File Uploader.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
 
 ## Installation
----
 
 Add `ng-file-uploader` module as dependency to your project.
 
@@ -14,7 +12,6 @@ npm install ng-file-uploader --save
 ```
 
 ## Usage
----
 
 1. Import `NgFileUploaderModule` into your AppModule or in module where you will use it.
 
@@ -137,7 +134,7 @@ export interface IUploadOutput {
 ```
 
 ## Example
----
+
 **You can always run this working example by cloning this repository and build and run with command in terminal `npm start`.**
 
 **Component code**
@@ -261,7 +258,6 @@ export class AppComponent {
 ```
 
 ## Running demo on local machine
----
 
 ```console
 npm start
