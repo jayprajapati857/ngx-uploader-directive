@@ -18,7 +18,7 @@ npm install ng-file-uploader --save
 
 1. Import `NgFileUploaderModule` into your AppModule or in module where you will use it.
 
-```
+```js
 // app.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -44,7 +44,7 @@ export class AppModule { }
 
 **or** Import `NgFileUploaderModule` into your SharedModule. This could be usefull if your project has nested Modules.
 
-```
+```js
 // shared.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -64,7 +64,7 @@ export class SharedModule { }
 
 2. Data structures of Input events and upload output events of files.
 
-```
+```js
 
 /**
  * File Upload Options.
@@ -142,7 +142,7 @@ export interface IUploadOutput {
 
 **Component code**
 
-```
+```js
 // tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-file-uploader';
@@ -243,7 +243,7 @@ export class AppComponent {
 
 **Html code**
 
-```
+```html
 <div class="drop-container" ngFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
   [uploadInput]="uploadInput" [ngClass]="{ 'is-drop-over': dragOver }">
   <h1>Drag &amp; Drop</h1>
