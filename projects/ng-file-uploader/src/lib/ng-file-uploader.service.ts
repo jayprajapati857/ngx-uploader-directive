@@ -1,3 +1,26 @@
+/**
+ * @license
+ * The MIT License (MIT)
+ * Copyright (c) 2015-2018 Jan Kuri jan@bleenco.com
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 // tslint:disable: no-console
 import { Injectable, EventEmitter } from '@angular/core';
 import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ng-file-uploader-models';
@@ -17,10 +40,12 @@ export class NgFileUploaderService {
   fileTypes: Array<string>;
   maxFileUploads: number;
   maxFileSize: number;
-  concurrency: number;
+  requestConcurrency: number;
+  maxFilesToAddInSingleRequest: number;
 
   constructor(
-    concurrency: number = Number.POSITIVE_INFINITY,
+    requestConcurrency: number = Number.POSITIVE_INFINITY,
+    maxFilesToAddInSingleRequest: number = Number.POSITIVE_INFINITY,
     fileTypes: Array<string> = ['*'],
     maxFileUploads: number = Number.POSITIVE_INFINITY,
     maxFileSize: number = Number.POSITIVE_INFINITY,
@@ -29,7 +54,7 @@ export class NgFileUploaderService {
   ) {
     this.queue = new Array<ISelectedFile>();
     this.fileServiceEvents = new EventEmitter<IUploadOutput>();
-    this.concurrency = concurrency;
+    this.requestConcurrency = requestConcurrency;
     this.fileTypes = fileTypes;
     this.maxFileUploads = maxFileUploads;
     this.maxFileSize = maxFileSize;
@@ -43,6 +68,7 @@ export class NgFileUploaderService {
   handleSelectedFiles(selectedFiles: FileList) {
 
     this.queue = new Array<ISelectedFile>();
+    this.fileServiceEvents.emit({ type: 'init' });
 
     if (this.logs) {
       console.info('Handling selected files', selectedFiles);
@@ -94,11 +120,9 @@ export class NgFileUploaderService {
    */
   handleInputEvents(inputEvnets: EventEmitter<IUploadInput>): Subscription {
     return inputEvnets.subscribe((event: IUploadInput) => {
-
       if (this.logs) {
         console.info('Input Event', event);
       }
-
       switch (event.type) {
         case 'uploadFile':
           const fileIndex = this.queue.findIndex(file => file === event.file);

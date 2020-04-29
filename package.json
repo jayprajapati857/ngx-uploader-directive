@@ -15,6 +15,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng build ng-file-uploader-lib && npm install && ng serve --open",
+    "dev": "ng build ng-file-uploader-lib && ng serve",
     "build": "ng build",
     "build:lib": "ng build ng-file-uploader-lib",
     "build:prod": "ng build ng-file-uploader-lib",

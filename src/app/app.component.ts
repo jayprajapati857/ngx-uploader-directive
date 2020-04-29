@@ -1,7 +1,7 @@
+// tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ng-file-uploader';
-// tslint:disable-next-line: max-line-length
-// import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'projects/ng-file-uploader/src/lib/models/ng-file-uploader-models';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -15,12 +15,14 @@ export class AppComponent {
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
+  uploadUrl = 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile';
+
 
   /**
    * Default Constructor
    */
   constructor() {
-    this.options = { concurrency: 1, maxFileUploads: 5, maxFileSize: 1000000, logs: true };
+    this.options = { requestConcurrency: 1, maxFilesToAddInSingleRequest: 10, maxFileUploads: 5, maxFileSize: 1000000, logs: true };
     this.files = new Array<ISelectedFile>();
     this.uploadInput = new EventEmitter<IUploadInput>();
     this.formData = new FormData();
@@ -29,19 +31,17 @@ export class AppComponent {
   onUploadOutput(output: IUploadOutput): void {
     console.log(output);
     switch (output.type) {
+      case 'init':
+        this.files = new Array<ISelectedFile>();
+        break;
       case 'allAddedToQueue':
         // uncomment this if you want to auto upload files when added
-        // const event: UploadInput = {
-        //   type: 'uploadAll',
-        //   url: '/upload',
-        //   method: 'POST',
-        //   data: { foo: 'bar' }
-        // };
-        // this.uploadInput.emit(event);
+        // startUpload();
         break;
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
           this.files.push(output.file);
+          console.log(this.files);
         }
         break;
       case 'uploading':
@@ -69,15 +69,13 @@ export class AppComponent {
   }
 
   startUpload(): void {
-
     this.formData.append('fileHasHeader', 'false');
     this.formData.append('delimiter', ',');
 
     const event: IUploadInput = {
       type: 'uploadAll',
-      url: 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile',
+      url: this.uploadUrl,
       method: 'POST',
-      data: { foo: 'bar' },
       formData: this.formData
     };
 
