@@ -1,6 +1,17 @@
 {
   "name": "ng-file-uploader",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jayprajapati857/ng-file-uploader.git"
+  },
+  "authors": [
+    "Jay Prajapati <jayprajapati857@gmail.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jayprajapati857/ng-file-uploader/issues"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng build ng-file-uploader-lib && npm install && ng serve --open",
