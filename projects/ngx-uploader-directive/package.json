@@ -1,6 +1,6 @@
 {
   "name": "ngx-uploader-directive",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Angular file uploader.",
   "repository": {
     "type": "git",
@@ -20,6 +20,8 @@
     "typescript",
     "ngx-uploader",
     "ngx-uploader-directive",
+    "file-uploader",
+    "file-uploader-directive",
     "file upload directive",
     "angular-file-uploader",
     "angular file uploader"

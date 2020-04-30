@@ -26,7 +26,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ngx-uploader-directive-models';
 import { Observable, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { HttpRequest, HttpClient, HttpEventType, HttpHandler } from '@angular/common/http';
+import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders } from '@angular/common/http';
 
 // @Injectable({
 //   providedIn: 'root'
@@ -85,7 +85,7 @@ export class NgxUploaderDirectiveService {
         allowedFiles.push(checkingFile);
       } else {
         const rejectedFile: ISelectedFile = this.convertToSelectedFile(checkingFile, checkingFileIndex);
-        this.fileServiceEvents.emit({ type: 'rejected', file: rejectedFile });
+        this.fileServiceEvents.emit({ type: 'rejected', file: rejectedFile, id: rejectedFile.id });
       }
     }
 
@@ -102,7 +102,7 @@ export class NgxUploaderDirectiveService {
       }
       const selectedFile: ISelectedFile = this.convertToSelectedFile(file, fileIndex);
       this.queue.push(selectedFile);
-      this.fileServiceEvents.emit({ type: 'addedToQueue', file: selectedFile });
+      this.fileServiceEvents.emit({ type: 'addedToQueue', file: selectedFile, id: selectedFile.id });
     }
 
     if (this.queue.length > 0) {
@@ -162,7 +162,7 @@ export class NgxUploaderDirectiveService {
               const fileIndex = this.queue.findIndex(file => file.id === id);
               if (fileIndex !== -1) {
                 this.queue[fileIndex].progress.status = 'Cancelled';
-                this.fileServiceEvents.emit({ type: 'cancelled', file: this.queue[fileIndex] });
+                this.fileServiceEvents.emit({ type: 'cancelled', file: this.queue[fileIndex], id: this.queue[fileIndex].id });
               }
             }
           });
@@ -187,12 +187,12 @@ export class NgxUploaderDirectiveService {
             return;
           }
 
-          const i = this.queue.findIndex(file => file.id === event.id);
+          const removeFileIndex = this.queue.findIndex(file => file.id === event.id);
 
-          if (i !== -1) {
-            const file = this.queue[i];
-            this.queue.splice(i, 1);
-            this.fileServiceEvents.emit({ type: 'removed', file: event.file });
+          if (removeFileIndex !== -1) {
+            const file = this.queue[removeFileIndex];
+            this.queue.splice(removeFileIndex, 1);
+            this.fileServiceEvents.emit({ type: 'removed', file, id: event.id });
           }
           break;
 
@@ -254,6 +254,7 @@ export class NgxUploaderDirectiveService {
       let eta: number | null = null;
 
       const fileList = files;
+      const headers = event.headers || {};
 
       if (this.logs) {
         console.info('Files to Upload', files);
@@ -277,7 +278,7 @@ export class NgxUploaderDirectiveService {
           formData.append('file', fileList[0].nativeFile, fileList[0].name);
         }
 
-        this.httpRequest(event.method, event.url, formData).subscribe(
+        this.httpRequest(event.method, event.url, formData, new HttpHeaders(headers)).subscribe(
           // tslint:disable-next-line: no-shadowed-variable
           (data) => {
             switch (data.type) {
@@ -301,6 +302,7 @@ export class NgxUploaderDirectiveService {
                     etaHuman: this.secondsToHuman(eta)
                   }
                 };
+
                 observer.next({ type: 'uploading', file: files[0], progress: fileProgress });
                 break;
 
@@ -331,8 +333,9 @@ export class NgxUploaderDirectiveService {
    * @param apiUrl Url to send request
    * @param body FormData to passwith
    */
-  public httpRequest(requestMethod: string, apiUrl: string, body: FormData): Observable<any> {
+  public httpRequest(requestMethod: string, apiUrl: string, body: FormData, headers?: HttpHeaders): Observable<any> {
     const req = new HttpRequest(requestMethod, apiUrl, body, {
+      headers,
       reportProgress: true
     });
     return this.httpClient.request(req);
@@ -386,9 +389,9 @@ export class NgxUploaderDirectiveService {
    * @param fileIndex File index in array
    */
   convertToSelectedFile(file: File, fileIndex: number): ISelectedFile {
-    if (this.logs) {
-      console.info('Converting file to Input Selected File index: ' + fileIndex, file);
-    }
+    // if (this.logs) {
+    //   console.info('Converting file to Input Selected File index: ' + fileIndex, file);
+    // }
 
     return {
       fileIndex,

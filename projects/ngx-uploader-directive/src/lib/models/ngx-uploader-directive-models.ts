@@ -85,6 +85,7 @@ export interface IUploadInput {
 export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver'
     | 'dragOut' | 'drop' | 'removed' | 'removedAll' | 'rejected' | 'error'; // Output events.
+    id?: string; // id of selected file.
     file?: ISelectedFile; // selected file.
     progress?: IUploadProgress; // Progress
     response?: any; // File upload api response.

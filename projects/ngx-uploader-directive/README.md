@@ -62,7 +62,6 @@ export class SharedModule { }
 2. Data structures of Input events and upload output events of files.
 
 ```ts
-
 /**
  * File Upload Options.
  */
@@ -126,11 +125,27 @@ export interface IUploadInput {
  */
 export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver' | 'dragOut' | 'drop' | 'removed' | 'removedAll' | 'rejected' | 'error'; // Output events.
+    id?: string; // id of selected file.
     file?: ISelectedFile; // selected file.
     progress?: IUploadProgress; // Progress
     response?: any; // File upload api response.
 }
+```
 
+## Request headers
+
+If you want to pass any request header with file upload, you can set header in upload input event as follows:
+
+- Here I have set Authorization header to pass with request.
+
+```ts
+const event: IUploadInput = {
+    type: 'uploadAll',
+    url: this.uploadUrl,
+    method: 'POST',
+    formData: this.formData,
+    headers: { Authorization: 'bearer ' + this.authToken }
+};
 ```
 
 ## Example
@@ -211,8 +226,9 @@ export class AppComponent {
   }
 
   startUpload(): void {
-    this.formData.append('fileHasHeader', 'false');
-    this.formData.append('delimiter', ',');
+    // Sample form data to pass with
+    this.formData.append('key1', 'value1');
+    this.formData.append('key2', 'value2');
 
     const event: IUploadInput = {
       type: 'uploadAll',
@@ -265,6 +281,13 @@ npm install
 
 npm start
 ```
+
+## Future plans
+
+**Currently all the files are being sent in a single request though we have taken some params like `requestConcurrency` and `maxFilesToAddInSingleRequest` to send files.**
+
+- Allow user to send individual request with single file
+- To make multiple requests and send files based on the parameters taken
 
 ### LICENCE
 
