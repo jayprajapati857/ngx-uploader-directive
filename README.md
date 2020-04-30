@@ -267,6 +267,6 @@ npm start
 
 ```
 
-### LICENCE
+## LICENCE
 
 [MIT](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)
