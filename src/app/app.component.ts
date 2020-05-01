@@ -15,7 +15,7 @@ export class AppComponent {
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
-  uploadUrl = 'upload url';
+  uploadUrl = 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile';
 
   /**
    * Default Constructor
@@ -28,19 +28,19 @@ export class AppComponent {
   }
 
   onUploadOutput(output: IUploadOutput): void {
-    console.log(output);
+    // console.log(output);
     switch (output.type) {
       case 'init':
         this.files = new Array<ISelectedFile>();
         break;
       case 'allAddedToQueue':
         // uncomment this if you want to auto upload files when added
-        // startUpload();
+        // this.startUpload();
         break;
       case 'addedToQueue':
         if (typeof output.file !== 'undefined') {
           this.files.push(output.file);
-          console.log(this.files);
+          // console.log(this.files);
         }
         break;
       case 'uploading':
@@ -75,18 +75,19 @@ export class AppComponent {
       type: 'uploadAll',
       url: this.uploadUrl,
       method: 'POST',
-      formData: this.formData
+      formData: this.formData,
+      headers: { Authorization: 'bearer ' + 'aetklsndfl' }
     };
 
     this.uploadInput.emit(event);
   }
 
   cancelUpload(id: string): void {
-    this.uploadInput.emit({ type: 'cancel', id: id });
+    this.uploadInput.emit({ type: 'cancel', id });
   }
 
   removeFile(id: string): void {
-    this.uploadInput.emit({ type: 'remove', id: id });
+    this.uploadInput.emit({ type: 'remove', id });
   }
 
   removeAllFiles(): void {

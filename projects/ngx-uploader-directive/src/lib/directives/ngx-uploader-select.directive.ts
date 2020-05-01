@@ -21,6 +21,8 @@
  * SOFTWARE.
  */
 
+// tslint:disable: max-line-length
+// tslint:disable: no-console
 import { Directive, Input, EventEmitter, Output, ElementRef } from '@angular/core';
 import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ngx-uploader-directive-models';
 import { Subscription } from 'rxjs';
@@ -34,8 +36,10 @@ import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
 
 export class NgxUploaderSelectDirective {
 
+  private devEnv = true;
+
   @Input() options: IUploadOptions;
-  @Input() uploadInput: EventEmitter<IUploadInput>;
+  @Input() uploadInput: EventEmitter<any>;
   @Output() uploadOutput: EventEmitter<IUploadOutput>;
 
   uploadService: NgxUploaderDirectiveService;
@@ -66,14 +70,21 @@ export class NgxUploaderSelectDirective {
     // Adding on change event listener
     this.element.addEventListener('change', this.fileListener, false);
 
-    // Adding events to subscriptions
     this.subscriptions.push(
       this.uploadService.fileServiceEvents.subscribe((event: IUploadOutput) => {
-        this.uploadOutput.emit(event);
+        if (event.fileSelectedEventType === 'SELECT' || event.fileSelectedEventType === 'ALL') {
+          if (this.options.logs && this.devEnv) {
+            console.info('Output select event', event);
+          }
+          this.uploadOutput.emit(event);
+        }
       })
     );
 
     if (this.uploadInput instanceof EventEmitter) {
+      if (this.options.logs && this.devEnv) {
+        console.info('Input select Init');
+      }
       this.subscriptions.push(this.uploadService.handleInputEvents(this.uploadInput));
     }
   }
@@ -88,10 +99,12 @@ export class NgxUploaderSelectDirective {
 
   fileListener = () => {
     // tslint:disable-next-line: no-console
-    console.info('file listener', this.element.files);
+    if (this.options.logs && this.devEnv) {
+      console.info('File changes', this.element.files);
+    }
     if (this.element.files) {
       // call service method to handle selected files
-      this.uploadService.handleSelectedFiles(this.element.files);
+      this.uploadService.handleSelectedFiles(this.element.files, 'SELECT');
     }
   }
 

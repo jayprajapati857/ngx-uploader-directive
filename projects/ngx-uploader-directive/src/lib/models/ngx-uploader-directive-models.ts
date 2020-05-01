@@ -41,6 +41,7 @@ export interface ISelectedFile {
     fileIndex: number; // file index of selected files.
     name: string; // Name of file.
     type: string; // Type of file.
+    selectedEventType: 'DROP' | 'SELECT'; // Type of selection of file.
     progress?: IUploadProgress; // File upload Progress.
     nativeFile?: File; // Native File.
     formData?: FormData; // Form data to upload with file.
@@ -73,10 +74,9 @@ export interface IUploadInput {
     id?: string; // Input id of file to upload.
     fieldName?: string; // Input field name.
     fileIndex?: number; // Input file index to upload.
-    file?: ISelectedFile; // Input selected file.
+    file?: ISelectedFile; // Input array selected file.
     formData?: FormData; // Input form data to pass with file.
     headers?: { [key: string]: string }; // Input headers to pass with upload request.
-    withHeaders?: boolean; // Input upload with credentials.
 }
 
 /**
@@ -86,7 +86,8 @@ export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver'
     | 'dragOut' | 'drop' | 'removed' | 'removedAll' | 'rejected' | 'error'; // Output events.
     id?: string; // id of selected file.
-    file?: ISelectedFile; // selected file.
+    file?: ISelectedFile; // array selected file.
+    fileSelectedEventType?: 'DROP' | 'SELECT' | 'ALL'; // Type of selection of file.
     progress?: IUploadProgress; // Progress
     response?: any; // File upload api response.
 }

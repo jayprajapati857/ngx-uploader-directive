@@ -21,11 +21,12 @@
  * SOFTWARE.
  */
 
+// tslint:disable: max-line-length
 // tslint:disable: no-console
 import { Injectable, EventEmitter } from '@angular/core';
 import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ngx-uploader-directive-models';
-import { Observable, Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Observable, Subscription, Subject } from 'rxjs';
+import { finalize, mergeMap } from 'rxjs/operators';
 import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders } from '@angular/common/http';
 
 // @Injectable({
@@ -34,9 +35,13 @@ import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders } from
 
 export class NgxUploaderDirectiveService {
 
-  queue: Array<ISelectedFile>;
+  public static queue: Array<ISelectedFile> = new Array<ISelectedFile>();
+
+  private devEnv = true;
+
   subscriptions: Array<{ id: string, sub: Subscription }>;
   fileServiceEvents: EventEmitter<IUploadOutput>;
+  uploadScheduler: Subject<{ files: Array<ISelectedFile>, event: IUploadInput }>;
   fileTypes: Array<string>;
   maxFileUploads: number;
   maxFileSize: number;
@@ -52,25 +57,31 @@ export class NgxUploaderDirectiveService {
     private httpClient: HttpClient,
     private logs?: boolean,
   ) {
-    this.queue = new Array<ISelectedFile>();
     this.fileServiceEvents = new EventEmitter<IUploadOutput>();
+    this.uploadScheduler = new Subject();
     this.requestConcurrency = requestConcurrency;
     this.fileTypes = fileTypes;
     this.maxFileUploads = maxFileUploads;
     this.maxFileSize = maxFileSize;
     this.subscriptions = new Array<{ id: string, sub: Subscription }>();
+
+    this.uploadScheduler
+      .pipe(
+        mergeMap(upload => this.startUpload(upload), requestConcurrency)
+      )
+      .subscribe(uploadOutput => this.fileServiceEvents.emit(uploadOutput));
   }
 
   /**
    * Handles uploaded files
    * @param selectedFiles Selected Files
    */
-  handleSelectedFiles(selectedFiles: FileList) {
+  handleSelectedFiles(selectedFiles: FileList, selectedEventType: 'DROP' | 'SELECT') {
 
-    this.queue = new Array<ISelectedFile>();
-    this.fileServiceEvents.emit({ type: 'init' });
+    NgxUploaderDirectiveService.queue = new Array<ISelectedFile>();
+    this.fileServiceEvents.emit({ type: 'init', fileSelectedEventType: selectedEventType });
 
-    if (this.logs) {
+    if (this.logs && this.devEnv) {
       console.info('Handling selected files', selectedFiles);
     }
 
@@ -79,13 +90,13 @@ export class NgxUploaderDirectiveService {
     // tslint:disable-next-line: prefer-for-of
     for (let checkingFileIndex = 0; checkingFileIndex < selectedFiles.length; checkingFileIndex++) {
       const checkingFile = selectedFiles[checkingFileIndex];
-      const queueLength = allowedFiles.length + this.queue.length + 1;
+      const queueLength = allowedFiles.length + NgxUploaderDirectiveService.queue.length + 1;
 
       if (this.isFileTypeAllowed(checkingFile.type) && queueLength <= this.maxFileUploads && this.isFileSizeAllowed(checkingFile.size)) {
         allowedFiles.push(checkingFile);
       } else {
-        const rejectedFile: ISelectedFile = this.convertToSelectedFile(checkingFile, checkingFileIndex);
-        this.fileServiceEvents.emit({ type: 'rejected', file: rejectedFile, id: rejectedFile.id });
+        const rejectedFile: ISelectedFile = this.convertToSelectedFile(checkingFile, checkingFileIndex, selectedEventType);
+        this.fileServiceEvents.emit({ type: 'rejected', file: rejectedFile, id: rejectedFile.id, fileSelectedEventType: selectedEventType });
       }
     }
 
@@ -97,20 +108,20 @@ export class NgxUploaderDirectiveService {
     // tslint:disable-next-line: prefer-for-of
     for (let fileIndex = 0; fileIndex < allowedFiles.length; fileIndex++) {
       const file = allowedFiles[fileIndex];
-      if (this.logs) {
+      if (this.logs && this.devEnv) {
         console.info('Adding files to queue file index: ' + fileIndex, file);
       }
-      const selectedFile: ISelectedFile = this.convertToSelectedFile(file, fileIndex);
-      this.queue.push(selectedFile);
-      this.fileServiceEvents.emit({ type: 'addedToQueue', file: selectedFile, id: selectedFile.id });
+      const selectedFile: ISelectedFile = this.convertToSelectedFile(file, fileIndex, selectedEventType);
+      NgxUploaderDirectiveService.queue.push(selectedFile);
+      this.fileServiceEvents.emit({ type: 'addedToQueue', file: selectedFile, id: selectedFile.id, fileSelectedEventType: selectedEventType });
     }
 
-    if (this.queue.length > 0) {
-      this.fileServiceEvents.emit({ type: 'allAddedToQueue' });
+    if (NgxUploaderDirectiveService.queue.length > 0) {
+      this.fileServiceEvents.emit({ type: 'allAddedToQueue', fileSelectedEventType: selectedEventType });
     }
 
     if (this.logs) {
-      console.info('Queue', this.queue);
+      console.info('Queue', NgxUploaderDirectiveService.queue);
     }
   }
 
@@ -120,33 +131,25 @@ export class NgxUploaderDirectiveService {
    */
   handleInputEvents(inputEvnets: EventEmitter<IUploadInput>): Subscription {
     return inputEvnets.subscribe((event: IUploadInput) => {
-      if (this.logs) {
-        console.info('Input Event', event);
+      if (this.logs && this.devEnv) {
+        console.info('Input event', event);
       }
+
       switch (event.type) {
         case 'uploadFile':
-          const fileIndex = this.queue.findIndex(file => file === event.file);
+          const fileIndex = NgxUploaderDirectiveService.queue.findIndex(file => file === event.file);
           if (fileIndex !== -1 && event.file) {
-            this.startUpload({ files: this.queue, event }).subscribe(
-              (uploadResponse) => {
-                this.fileServiceEvents.emit(uploadResponse);
-              },
-              (uploadError) => {
-                this.fileServiceEvents.emit(uploadError);
-              }
-            );
+            this.uploadScheduler.next({
+              files: NgxUploaderDirectiveService.queue.filter((file) => {
+                return file.fileIndex === fileIndex;
+              }), event
+            });
           }
+
           break;
 
         case 'uploadAll':
-          this.startUpload({ files: this.queue, event }).subscribe(
-            (uploadResponse) => {
-              this.fileServiceEvents.emit(uploadResponse);
-            },
-            (uploadError) => {
-              this.fileServiceEvents.emit(uploadError);
-            }
-          );
+          this.uploadScheduler.next({ files: NgxUploaderDirectiveService.queue, event });
           break;
 
         case 'cancel':
@@ -159,10 +162,10 @@ export class NgxUploaderDirectiveService {
             if (sub.sub) {
               sub.sub.unsubscribe();
               // tslint:disable-next-line: no-shadowed-variable
-              const fileIndex = this.queue.findIndex(file => file.id === id);
+              const fileIndex = NgxUploaderDirectiveService.queue.findIndex(file => file.id === id);
               if (fileIndex !== -1) {
-                this.queue[fileIndex].progress.status = 'Cancelled';
-                this.fileServiceEvents.emit({ type: 'cancelled', file: this.queue[fileIndex], id: this.queue[fileIndex].id });
+                NgxUploaderDirectiveService.queue[fileIndex].progress.status = 'Cancelled';
+                this.fileServiceEvents.emit({ type: 'cancelled', file: NgxUploaderDirectiveService.queue[fileIndex], id: NgxUploaderDirectiveService.queue[fileIndex].id, fileSelectedEventType: NgxUploaderDirectiveService.queue[fileIndex].selectedEventType });
               }
             }
           });
@@ -174,10 +177,10 @@ export class NgxUploaderDirectiveService {
               sub.sub.unsubscribe();
             }
 
-            const file = this.queue.find(uploadFile => uploadFile.id === sub.id);
+            const file = NgxUploaderDirectiveService.queue.find(uploadFile => uploadFile.id === sub.id);
             if (file) {
               file.progress.status = 'Cancelled';
-              this.fileServiceEvents.emit({ type: 'cancelled' });
+              this.fileServiceEvents.emit({ type: 'cancelled', fileSelectedEventType: NgxUploaderDirectiveService.queue[fileIndex].selectedEventType });
             }
           });
           break;
@@ -187,19 +190,19 @@ export class NgxUploaderDirectiveService {
             return;
           }
 
-          const removeFileIndex = this.queue.findIndex(file => file.id === event.id);
+          const removeFileIndex = NgxUploaderDirectiveService.queue.findIndex(file => file.id === event.id);
 
           if (removeFileIndex !== -1) {
-            const file = this.queue[removeFileIndex];
-            this.queue.splice(removeFileIndex, 1);
-            this.fileServiceEvents.emit({ type: 'removed', file, id: event.id });
+            const file = NgxUploaderDirectiveService.queue[removeFileIndex];
+            NgxUploaderDirectiveService.queue.splice(removeFileIndex, 1);
+            this.fileServiceEvents.emit({ type: 'removed', file, id: event.id, fileSelectedEventType: NgxUploaderDirectiveService.queue[fileIndex].selectedEventType });
           }
           break;
 
         case 'removeAll':
-          if (this.queue.length) {
-            this.queue = new Array<ISelectedFile>();
-            this.fileServiceEvents.emit({ type: 'removedAll' });
+          if (NgxUploaderDirectiveService.queue.length) {
+            NgxUploaderDirectiveService.queue = new Array<ISelectedFile>();
+            this.fileServiceEvents.emit({ type: 'removedAll', fileSelectedEventType: 'ALL' });
           }
           break;
       }
@@ -238,6 +241,8 @@ export class NgxUploaderDirectiveService {
         }, () => {
           observer.complete();
         });
+
+      // this.subscriptions.push({ id: upload.files[0].id, sub });
     });
   }
 
@@ -256,7 +261,7 @@ export class NgxUploaderDirectiveService {
       const fileList = files;
       const headers = event.headers || {};
 
-      if (this.logs) {
+      if (this.logs && this.devEnv) {
         console.info('Files to Upload', files);
         console.info('Files upload with input event', event);
       }
@@ -303,12 +308,24 @@ export class NgxUploaderDirectiveService {
                   }
                 };
 
-                observer.next({ type: 'uploading', file: files[0], progress: fileProgress });
+                observer.next({ type: 'uploading', progress: fileProgress, fileSelectedEventType: files[0].selectedEventType });
                 break;
 
               case HttpEventType.Response:
                 files[0].response = data.body;
-                observer.next({ type: 'done', file: files[0], response: data.body });
+                const progress: IUploadProgress = {
+                  status: 'Done',
+                  data: {
+                    percentage: 100,
+                    speed,
+                    speedHuman: `${this.humanizeBytes(speed)}/s`,
+                    startTime: null,
+                    endTime: new Date().getTime(),
+                    eta,
+                    etaHuman: this.secondsToHuman(eta || 0)
+                  }
+                };
+                observer.next({ type: 'done', response: data.body, progress, fileSelectedEventType: files[0].selectedEventType });
                 observer.complete();
                 break;
             }
@@ -316,7 +333,7 @@ export class NgxUploaderDirectiveService {
           },
           (error) => {
             console.log(error);
-            observer.next({ type: 'error', file: files[0], response: error });
+            observer.next({ type: 'error', response: error, fileSelectedEventType: files[0].selectedEventType });
             observer.complete();
           }
         );
@@ -388,10 +405,10 @@ export class NgxUploaderDirectiveService {
    * @param file Selected File
    * @param fileIndex File index in array
    */
-  convertToSelectedFile(file: File, fileIndex: number): ISelectedFile {
-    // if (this.logs) {
-    //   console.info('Converting file to Input Selected File index: ' + fileIndex, file);
-    // }
+  convertToSelectedFile(file: File, fileIndex: number, selectedEventType: 'DROP' | 'SELECT'): ISelectedFile {
+    if (this.logs && this.devEnv) {
+      console.info('Converting file to Input Selected File index: ' + fileIndex, file);
+    }
 
     return {
       fileIndex,
@@ -399,6 +416,7 @@ export class NgxUploaderDirectiveService {
       name: file.name,
       nativeFile: file,
       type: file.type,
+      selectedEventType,
       progress: {
         status: 'Queue',
         data: {

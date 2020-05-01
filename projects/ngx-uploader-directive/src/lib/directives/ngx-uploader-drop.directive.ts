@@ -22,6 +22,7 @@
  */
 
 // tslint:disable: max-line-length
+// tslint:disable: no-console
 import { Directive, Input, EventEmitter, Output, ElementRef, HostListener } from '@angular/core';
 import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ngx-uploader-directive-models';
 import { Subscription } from 'rxjs';
@@ -34,6 +35,8 @@ import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
 })
 
 export class NgxUploaderDropDirective {
+
+  private devEnv = true;
 
   @Input() options: IUploadOptions;
   @Input() uploadInput: EventEmitter<IUploadInput>;
@@ -70,12 +73,19 @@ export class NgxUploaderDropDirective {
     // Adding events to subscriptions
     this.subscriptions.push(
       this.uploadService.fileServiceEvents.subscribe((event: IUploadOutput) => {
-        this.uploadOutput.emit(event);
+        if (event.fileSelectedEventType === 'DROP' || event.fileSelectedEventType === 'ALL') {
+          if (this.options.logs && this.devEnv) {
+            console.info('Output drop event', event);
+          }
+          this.uploadOutput.emit(event);
+        }
       })
     );
 
     if (this.uploadInput instanceof EventEmitter) {
-      // console.log('Input emit');
+      if (this.options.logs && this.devEnv) {
+        console.info('Input drop Init');
+      }
       this.subscriptions.push(this.uploadService.handleInputEvents(this.uploadInput));
     }
   }
@@ -95,9 +105,9 @@ export class NgxUploaderDropDirective {
     event.stopPropagation();
     event.preventDefault();
 
-    const outputEvent: IUploadOutput = { type: 'drop' };
+    const outputEvent: IUploadOutput = { type: 'drop', fileSelectedEventType: 'DROP' };
     this.uploadOutput.emit(outputEvent);
-    this.uploadService.handleSelectedFiles(event.dataTransfer.files);
+    this.uploadService.handleSelectedFiles(event.dataTransfer.files, 'DROP');
   }
 
   @HostListener('dragover', ['$event'])
@@ -106,7 +116,7 @@ export class NgxUploaderDropDirective {
       return;
     }
 
-    const outputEvent: IUploadOutput = { type: 'dragOver' };
+    const outputEvent: IUploadOutput = { type: 'dragOver', fileSelectedEventType: 'DROP' };
     this.uploadOutput.emit(outputEvent);
   }
 
@@ -116,7 +126,7 @@ export class NgxUploaderDropDirective {
       return;
     }
 
-    const outputEvent: IUploadOutput = { type: 'dragOut' };
+    const outputEvent: IUploadOutput = { type: 'dragOut', fileSelectedEventType: 'DROP' };
     this.uploadOutput.emit(outputEvent);
   }
 
