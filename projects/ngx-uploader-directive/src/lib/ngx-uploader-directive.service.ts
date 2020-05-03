@@ -141,7 +141,7 @@ export class NgxUploaderDirectiveService {
         filesAddedToQueue = new Array<ISelectedFile>();
         filesAddedToQueue.push(selectedFile);
         totalFilesAdded.push(selectedFile);
-        this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, id: selectedFile.requestId, fileSelectedEventType: selectedEventType });
+        this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, requestId: selectedFile.requestId, fileSelectedEventType: selectedEventType });
       }
     } else {
       if (this.logs && this.devEnv) {
@@ -164,7 +164,7 @@ export class NgxUploaderDirectiveService {
           totalFilesAdded.push(convertdFile);
           fileIndex += 1;
         }
-        this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, id: eventId, fileSelectedEventType: selectedEventType });
+        this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, requestId: eventId, fileSelectedEventType: selectedEventType });
       }
     }
 
@@ -200,7 +200,7 @@ export class NgxUploaderDirectiveService {
           this.uploadScheduler.next({
             files: this.queue.filter(
               (file) => {
-                return file.requestId === event.id;
+                return file.requestId === event.requestId;
               }
             ), event
           });
@@ -228,7 +228,7 @@ export class NgxUploaderDirectiveService {
           break;
 
         case 'cancel':
-          const id = event.id || null;
+          const id = event.requestId || null;
           if (!id) {
             return;
           }
@@ -242,7 +242,7 @@ export class NgxUploaderDirectiveService {
                 this.queue.forEach((file, fileIndex, queue) => {
                   queue[fileIndex].progress.status = 'Cancelled';
                 });
-                this.fileServiceEvents.emit({ type: 'cancelled', id, files: cancelledFilesArray, fileSelectedEventType: cancelledFilesArray[0].selectedEventType });
+                this.fileServiceEvents.emit({ type: 'cancelled', requestId: id, files: cancelledFilesArray, fileSelectedEventType: cancelledFilesArray[0].selectedEventType });
               }
             }
           });
@@ -265,17 +265,17 @@ export class NgxUploaderDirectiveService {
           break;
 
         case 'remove':
-          if (!event.id) {
+          if (!event.requestId) {
             return;
           }
 
-          const filesToRemove = this.queue.filter((file) => file.requestId === event.id);
+          const filesToRemove = this.queue.filter((file) => file.requestId === event.requestId);
 
           if (filesToRemove.length > 0) {
-            const remainingFilesArray = this.queue.filter((file) => file.requestId !== event.id);
+            const remainingFilesArray = this.queue.filter((file) => file.requestId !== event.requestId);
             this.queue = remainingFilesArray;
           }
-          this.fileServiceEvents.emit({ type: 'removed', id: event.id, files: filesToRemove, fileSelectedEventType: 'ALL' });
+          this.fileServiceEvents.emit({ type: 'removed', requestId: event.requestId, files: filesToRemove, fileSelectedEventType: 'ALL' });
 
           break;
 
@@ -371,7 +371,7 @@ export class NgxUploaderDirectiveService {
           observer.complete();
         }
 
-        observer.next({ type: 'start', id: files[0].requestId, files, fileSelectedEventType: files[0].selectedEventType });
+        observer.next({ type: 'start', requestId: files[0].requestId, files, fileSelectedEventType: files[0].selectedEventType });
 
         this.httpRequest(event.method, event.url, formData, new HttpHeaders(headers)).subscribe(
           // tslint:disable-next-line: no-shadowed-variable
@@ -398,7 +398,7 @@ export class NgxUploaderDirectiveService {
                   }
                 };
 
-                observer.next({ type: 'uploading', id: files[0].requestId, files, progress: fileProgress, fileSelectedEventType: files[0].selectedEventType });
+                observer.next({ type: 'uploading', requestId: files[0].requestId, files, progress: fileProgress, fileSelectedEventType: files[0].selectedEventType });
                 break;
 
               case HttpEventType.Response:
@@ -415,19 +415,19 @@ export class NgxUploaderDirectiveService {
                     etaHuman: this.secondsToHuman(eta || 0)
                   }
                 };
-                observer.next({ type: 'done', id: files[0].requestId, response: data.body, progress, fileSelectedEventType: files[0].selectedEventType });
+                observer.next({ type: 'done', requestId: files[0].requestId, response: data.body, progress, fileSelectedEventType: files[0].selectedEventType });
                 observer.complete();
                 break;
             }
           },
           (error) => {
             console.log(error);
-            observer.next({ type: 'error', id: event.id, response: error, fileSelectedEventType: files[0].selectedEventType });
+            observer.next({ type: 'error', requestId: event.requestId, response: error, fileSelectedEventType: files[0].selectedEventType });
             observer.complete();
           }
         );
       } else {
-        observer.next({ type: 'error', id: event.id, response: 'No file selected' });
+        observer.next({ type: 'error', requestId: event.requestId, response: 'No file selected' });
         observer.complete();
       }
     });

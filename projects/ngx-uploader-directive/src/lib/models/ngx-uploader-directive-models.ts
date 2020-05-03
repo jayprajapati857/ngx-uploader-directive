@@ -76,7 +76,7 @@ export interface IUploadInput {
     inputReferenceNumber?: number; // Generate number using Math.random() and set it here.
     url?: string; // Input url.
     method?: string; // Input method.
-    id?: string; // Input id of file to upload.
+    requestId?: string; // Input id of file to upload.
     fieldName?: string; // Input field name.
     fileIndex?: number; // Input file index to upload.
     file?: ISelectedFile; // Input array selected file.
@@ -90,7 +90,7 @@ export interface IUploadInput {
 export interface IUploadOutput {
     type: 'init' | 'addedToQueue' | 'allAddedToQueue' | 'uploading' | 'done' | 'start' | 'cancelled' | 'dragOver'
     | 'dragOut' | 'drop' | 'removed' | 'removedAll' | 'rejected' | 'error'; // Output events.
-    id?: string; // id of selected file.
+    requestId?: string; // id of selected file.
     files?: Array<ISelectedFile>; // array selected file.
     fileSelectedEventType?: 'DROP' | 'SELECT' | 'ALL'; // Type of selection of file.
     progress?: IUploadProgress; // Progress
