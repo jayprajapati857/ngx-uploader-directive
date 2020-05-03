@@ -285,7 +285,7 @@ export class AppComponent {
    * @param requestId RequestId.
    */
   cancelUpload(requestId: string): void {
-      this.uploadInput.emit({ type: 'cancel', inputReferenceNumber: Math.random(), id: requestId });
+    this.uploadInput.emit({ type: 'cancel', inputReferenceNumber: Math.random(), requestId });
   }
 
   /**
@@ -293,15 +293,15 @@ export class AppComponent {
    * @param requestId Request id
    */
   removeFile(requestId: string): void {
-      console.log(requestId);
-      this.uploadInput.emit({ type: 'remove', inputReferenceNumber: Math.random(), id: requestId });
+    console.log(requestId);
+    this.uploadInput.emit({ type: 'remove', inputReferenceNumber: Math.random(), requestId });
   }
 
   /**
    * Remoce all file uploads.
    */
   removeAllFiles(): void {
-      this.uploadInput.emit({ type: 'removeAll', inputReferenceNumber: Math.random(), });
+    this.uploadInput.emit({ type: 'removeAll', inputReferenceNumber: Math.random() });
   }
 }
 ```

@@ -119,7 +119,7 @@ export class NgxUploaderDirectiveService {
 
     // Adding files to queue
     let filesAddedToQueue: Array<ISelectedFile>;
-    let totalFilesAdded: Array<ISelectedFile> = new Array<ISelectedFile>();
+    const totalFilesAdded: Array<ISelectedFile> = new Array<ISelectedFile>();
 
     if (this.maxFilesToAddInSingleRequest === 0 || this.maxFilesToAddInSingleRequest === 1) {
       if (this.logs && this.devEnv) {
@@ -194,9 +194,6 @@ export class NgxUploaderDirectiveService {
 
       switch (event.type) {
         case 'uploadFile':
-          // if (NgxUploaderDirectiveService.inputEventReferenceNumber === event.inputReferenceNumber) {
-          //   return;
-          // }
           this.uploadScheduler.next({
             files: this.queue.filter(
               (file) => {
@@ -208,9 +205,6 @@ export class NgxUploaderDirectiveService {
           break;
 
         case 'uploadAll':
-          // if (NgxUploaderDirectiveService.inputEventReferenceNumber === event.inputReferenceNumber) {
-          //   return;
-          // }
           const groupOfRequests = this.groupByArray(this.queue.filter((file) => file.progress.status === 'Queue'), 'id');
           if (this.logs) {
             console.info('Group of request', groupOfRequests);
@@ -287,6 +281,7 @@ export class NgxUploaderDirectiveService {
           break;
       }
 
+      // Temporary taken reference number not in use any where
       if (NgxUploaderDirectiveService.inputEventReferenceNumber !== event.inputReferenceNumber) {
         NgxUploaderDirectiveService.inputEventReferenceNumber = event.inputReferenceNumber;
       }
