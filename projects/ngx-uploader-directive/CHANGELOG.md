@@ -6,8 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-## [1.1.3] - 2020-05-03
-
 ### Changed
 - param name changed from id to requestId
 
@@ -34,3 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added File drag drop dirctive 
 - Added File select directive
 - Uploading files in a single request
+
+[Unreleased]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.2...HEAD
+[1.1.2]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.0...1.1.2
+[1.1.0]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/jayprajapati857/ngx-uploader-directive/releases/tag/1.0.0
