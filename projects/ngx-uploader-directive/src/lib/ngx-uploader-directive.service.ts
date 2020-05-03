@@ -192,8 +192,15 @@ export class NgxUploaderDirectiveService {
         return;
       }
 
+      const requestId = event.requestId;
+
       switch (event.type) {
         case 'uploadFile':
+          if (!requestId) {
+            this.fileServiceEvents.emit({ type: 'error', response: 'Invalid request id.', fileSelectedEventType: 'ALL' });
+            return;
+          }
+
           this.uploadScheduler.next({
             files: this.queue.filter(
               (file) => {
@@ -222,21 +229,21 @@ export class NgxUploaderDirectiveService {
           break;
 
         case 'cancel':
-          const id = event.requestId || null;
-          if (!id) {
+          if (!requestId) {
+            this.fileServiceEvents.emit({ type: 'error', response: 'Invalid request id.', fileSelectedEventType: 'ALL' });
             return;
           }
-          const subs = this.subscriptions.filter(sub => sub.id === id);
+          const subs = this.subscriptions.filter(sub => sub.id === requestId);
           subs.forEach(sub => {
             if (sub.sub) {
               sub.sub.unsubscribe();
               // tslint:disable-next-line: no-shadowed-variable
-              const cancelledFilesArray = this.queue.filter((file) => file.requestId === id);
+              const cancelledFilesArray = this.queue.filter((file) => file.requestId === requestId);
               if (cancelledFilesArray.length > 0) {
                 this.queue.forEach((file, fileIndex, queue) => {
                   queue[fileIndex].progress.status = 'Cancelled';
                 });
-                this.fileServiceEvents.emit({ type: 'cancelled', requestId: id, files: cancelledFilesArray, fileSelectedEventType: cancelledFilesArray[0].selectedEventType });
+                this.fileServiceEvents.emit({ type: 'cancelled', requestId, files: cancelledFilesArray, fileSelectedEventType: cancelledFilesArray[0].selectedEventType });
               }
             }
           });
@@ -259,7 +266,8 @@ export class NgxUploaderDirectiveService {
           break;
 
         case 'remove':
-          if (!event.requestId) {
+          if (!requestId) {
+            this.fileServiceEvents.emit({ type: 'error', response: 'Invalid request id.', fileSelectedEventType: 'ALL' });
             return;
           }
 
@@ -416,13 +424,13 @@ export class NgxUploaderDirectiveService {
             }
           },
           (error) => {
-            console.log(error);
-            observer.next({ type: 'error', requestId: event.requestId, response: error, fileSelectedEventType: files[0].selectedEventType });
+            // console.log(error);
+            observer.next({ type: 'error', requestId: files[0].requestId, response: error, fileSelectedEventType: files[0].selectedEventType });
             observer.complete();
           }
         );
       } else {
-        observer.next({ type: 'error', requestId: event.requestId, response: 'No file selected' });
+        observer.next({ type: 'error', requestId: files[0].requestId, response: 'No file selected' });
         observer.complete();
       }
     });
