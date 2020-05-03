@@ -26,8 +26,9 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ngx-uploader-directive-models';
 import { Observable, Subscription, Subject } from 'rxjs';
-import { finalize, mergeMap } from 'rxjs/operators';
+import { finalize, mergeMap, switchMap } from 'rxjs/operators';
 import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders } from '@angular/common/http';
+import { environment } from './configs/config';
 
 // @Injectable({
 //   providedIn: 'root'
@@ -35,9 +36,11 @@ import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders } from
 
 export class NgxUploaderDirectiveService {
 
-  public static queue: Array<ISelectedFile> = new Array<ISelectedFile>();
+  public static inputEventReferenceNumber = 0;
 
-  private devEnv = true;
+  private devEnv = !environment.production;
+  public queue: Array<ISelectedFile> = new Array<ISelectedFile>();
+  public MaxNumberOfRequest = 10;
 
   subscriptions: Array<{ id: string, sub: Subscription }>;
   fileServiceEvents: EventEmitter<IUploadOutput>;
@@ -59,7 +62,7 @@ export class NgxUploaderDirectiveService {
   ) {
     this.fileServiceEvents = new EventEmitter<IUploadOutput>();
     this.uploadScheduler = new Subject();
-    this.requestConcurrency = requestConcurrency;
+    this.maxFilesToAddInSingleRequest = 0;
     this.fileTypes = fileTypes;
     this.maxFileUploads = maxFileUploads;
     this.maxFileSize = maxFileSize;
@@ -67,7 +70,7 @@ export class NgxUploaderDirectiveService {
 
     this.uploadScheduler
       .pipe(
-        mergeMap(upload => this.startUpload(upload), requestConcurrency)
+        mergeMap(upload => this.startUpload(upload), requestConcurrency === 0 ? this.MaxNumberOfRequest : requestConcurrency)
       )
       .subscribe(uploadOutput => this.fileServiceEvents.emit(uploadOutput));
   }
@@ -78,26 +81,36 @@ export class NgxUploaderDirectiveService {
    */
   handleSelectedFiles(selectedFiles: FileList, selectedEventType: 'DROP' | 'SELECT') {
 
-    NgxUploaderDirectiveService.queue = new Array<ISelectedFile>();
+    this.queue = new Array<ISelectedFile>();
     this.fileServiceEvents.emit({ type: 'init', fileSelectedEventType: selectedEventType });
 
     if (this.logs && this.devEnv) {
       console.info('Handling selected files', selectedFiles);
     }
 
+    if (selectedFiles.length > this.maxFileUploads) {
+      this.fileServiceEvents.emit({ type: 'error', response: 'Maxium ' + this.maxFileUploads + ' files can be upload', fileSelectedEventType: selectedEventType });
+      return;
+    }
+
     // verify files with allowed files and max uploads
     const allowedFiles: Array<File> = new Array<File>();
+    const rejectedFiles: Array<ISelectedFile> = new Array<ISelectedFile>();
     // tslint:disable-next-line: prefer-for-of
     for (let checkingFileIndex = 0; checkingFileIndex < selectedFiles.length; checkingFileIndex++) {
       const checkingFile = selectedFiles[checkingFileIndex];
-      const queueLength = allowedFiles.length + NgxUploaderDirectiveService.queue.length + 1;
+      const queueLength = allowedFiles.length + this.queue.length + 1;
 
       if (this.isFileTypeAllowed(checkingFile.type) && queueLength <= this.maxFileUploads && this.isFileSizeAllowed(checkingFile.size)) {
         allowedFiles.push(checkingFile);
       } else {
-        const rejectedFile: ISelectedFile = this.convertToSelectedFile(checkingFile, checkingFileIndex, selectedEventType);
-        this.fileServiceEvents.emit({ type: 'rejected', file: rejectedFile, id: rejectedFile.id, fileSelectedEventType: selectedEventType });
+        const rejectedFile: ISelectedFile = this.convertToSelectedFile(checkingFile, checkingFileIndex, this.generateRandomeId(), selectedEventType);
+        rejectedFiles.push(rejectedFile);
       }
+    }
+
+    if (rejectedFiles.length > 0) {
+      this.fileServiceEvents.emit({ type: 'rejected', files: rejectedFiles, fileSelectedEventType: selectedEventType });
     }
 
     if (this.logs) {
@@ -105,23 +118,62 @@ export class NgxUploaderDirectiveService {
     }
 
     // Adding files to queue
-    // tslint:disable-next-line: prefer-for-of
-    for (let fileIndex = 0; fileIndex < allowedFiles.length; fileIndex++) {
-      const file = allowedFiles[fileIndex];
+    let filesAddedToQueue: Array<ISelectedFile>;
+    let totalFilesAdded: Array<ISelectedFile> = new Array<ISelectedFile>();
+
+    if (this.maxFilesToAddInSingleRequest === 0 || this.maxFilesToAddInSingleRequest === 1) {
       if (this.logs && this.devEnv) {
-        console.info('Adding files to queue file index: ' + fileIndex, file);
+        console.info('Single file or Single Request');
       }
-      const selectedFile: ISelectedFile = this.convertToSelectedFile(file, fileIndex, selectedEventType);
-      NgxUploaderDirectiveService.queue.push(selectedFile);
-      this.fileServiceEvents.emit({ type: 'addedToQueue', file: selectedFile, id: selectedFile.id, fileSelectedEventType: selectedEventType });
+      const eventId = this.generateRandomeId();
+      // tslint:disable-next-line: prefer-for-of
+      for (let fileIndex = 0; fileIndex < allowedFiles.length; fileIndex++) {
+
+        const file = allowedFiles[fileIndex];
+        let selectedFile: ISelectedFile;
+        if (this.maxFilesToAddInSingleRequest === 0) {
+          selectedFile = this.convertToSelectedFile(file, fileIndex, eventId, selectedEventType);
+        } else if (this.maxFilesToAddInSingleRequest === 1) {
+          selectedFile = this.convertToSelectedFile(file, fileIndex, this.generateRandomeId(), selectedEventType);
+        }
+
+        this.queue.push(selectedFile);
+        filesAddedToQueue = new Array<ISelectedFile>();
+        filesAddedToQueue.push(selectedFile);
+        totalFilesAdded.push(selectedFile);
+        this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, id: selectedFile.requestId, fileSelectedEventType: selectedEventType });
+      }
+    } else {
+      if (this.logs && this.devEnv) {
+        console.info('Multiple file multiple request');
+      }
+      // generate id for max files to add in single request.
+      const chunkedArray = this.chunkArray(allowedFiles, this.maxFilesToAddInSingleRequest);
+      let fileIndex = 0;
+      // tslint:disable-next-line: prefer-for-of
+      for (let chukedQueueArrayIndex = 0; chukedQueueArrayIndex < chunkedArray.length; chukedQueueArrayIndex++) {
+        const chunkedElement = chunkedArray[chukedQueueArrayIndex];
+        const eventId = this.generateRandomeId();
+        filesAddedToQueue = new Array<ISelectedFile>();
+        // tslint:disable-next-line: prefer-for-of
+        for (let chunkElementIndex = 0; chunkElementIndex < chunkedElement.length; chunkElementIndex++) {
+          const selectedFileElement = chunkedElement[chunkElementIndex];
+          const convertdFile = this.convertToSelectedFile(selectedFileElement, fileIndex, eventId, selectedEventType);
+          this.queue.push(convertdFile);
+          filesAddedToQueue.push(convertdFile);
+          totalFilesAdded.push(convertdFile);
+          fileIndex += 1;
+        }
+        this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, id: eventId, fileSelectedEventType: selectedEventType });
+      }
     }
 
-    if (NgxUploaderDirectiveService.queue.length > 0) {
-      this.fileServiceEvents.emit({ type: 'allAddedToQueue', fileSelectedEventType: selectedEventType });
+    if (this.queue.length > 0) {
+      this.fileServiceEvents.emit({ type: 'allAddedToQueue', files: totalFilesAdded, fileSelectedEventType: selectedEventType });
     }
 
     if (this.logs) {
-      console.info('Queue', NgxUploaderDirectiveService.queue);
+      console.info('Queue', this.queue);
     }
   }
 
@@ -131,25 +183,48 @@ export class NgxUploaderDirectiveService {
    */
   handleInputEvents(inputEvnets: EventEmitter<IUploadInput>): Subscription {
     return inputEvnets.subscribe((event: IUploadInput) => {
+
       if (this.logs && this.devEnv) {
         console.info('Input event', event);
       }
 
+      if (this.queue.length === 0) {
+        return;
+      }
+
       switch (event.type) {
         case 'uploadFile':
-          const fileIndex = NgxUploaderDirectiveService.queue.findIndex(file => file === event.file);
-          if (fileIndex !== -1 && event.file) {
-            this.uploadScheduler.next({
-              files: NgxUploaderDirectiveService.queue.filter((file) => {
-                return file.fileIndex === fileIndex;
-              }), event
-            });
-          }
+          // if (NgxUploaderDirectiveService.inputEventReferenceNumber === event.inputReferenceNumber) {
+          //   return;
+          // }
+          this.uploadScheduler.next({
+            files: this.queue.filter(
+              (file) => {
+                return file.requestId === event.id;
+              }
+            ), event
+          });
 
           break;
 
         case 'uploadAll':
-          this.uploadScheduler.next({ files: NgxUploaderDirectiveService.queue, event });
+          // if (NgxUploaderDirectiveService.inputEventReferenceNumber === event.inputReferenceNumber) {
+          //   return;
+          // }
+          const groupOfRequests = this.groupByArray(this.queue.filter((file) => file.progress.status === 'Queue'), 'id');
+          if (this.logs) {
+            console.info('Group of request', groupOfRequests);
+          }
+
+          for (const request in groupOfRequests) {
+            if (groupOfRequests.hasOwnProperty(request)) {
+              const requestFiles = groupOfRequests[request];
+              if (this.logs && this.devEnv) {
+                console.info('Requesting for id ' + request, requestFiles);
+              }
+              this.uploadScheduler.next({ files: requestFiles, event });
+            }
+          }
           break;
 
         case 'cancel':
@@ -162,10 +237,12 @@ export class NgxUploaderDirectiveService {
             if (sub.sub) {
               sub.sub.unsubscribe();
               // tslint:disable-next-line: no-shadowed-variable
-              const fileIndex = NgxUploaderDirectiveService.queue.findIndex(file => file.id === id);
-              if (fileIndex !== -1) {
-                NgxUploaderDirectiveService.queue[fileIndex].progress.status = 'Cancelled';
-                this.fileServiceEvents.emit({ type: 'cancelled', file: NgxUploaderDirectiveService.queue[fileIndex], id: NgxUploaderDirectiveService.queue[fileIndex].id, fileSelectedEventType: NgxUploaderDirectiveService.queue[fileIndex].selectedEventType });
+              const cancelledFilesArray = this.queue.filter((file) => file.requestId === id);
+              if (cancelledFilesArray.length > 0) {
+                this.queue.forEach((file, fileIndex, queue) => {
+                  queue[fileIndex].progress.status = 'Cancelled';
+                });
+                this.fileServiceEvents.emit({ type: 'cancelled', id, files: cancelledFilesArray, fileSelectedEventType: cancelledFilesArray[0].selectedEventType });
               }
             }
           });
@@ -177,10 +254,12 @@ export class NgxUploaderDirectiveService {
               sub.sub.unsubscribe();
             }
 
-            const file = NgxUploaderDirectiveService.queue.find(uploadFile => uploadFile.id === sub.id);
-            if (file) {
-              file.progress.status = 'Cancelled';
-              this.fileServiceEvents.emit({ type: 'cancelled', fileSelectedEventType: NgxUploaderDirectiveService.queue[fileIndex].selectedEventType });
+            const canceldFileArray = this.queue.filter((uploadFile) => uploadFile.requestId === sub.id);
+            if (canceldFileArray.length > 0) {
+              this.queue.forEach((file, fileIndex, queue) => {
+                queue[fileIndex].progress.status = 'Cancelled';
+              });
+              this.fileServiceEvents.emit({ type: 'cancelled', files: canceldFileArray, fileSelectedEventType: canceldFileArray[0].selectedEventType });
             }
           });
           break;
@@ -190,21 +269,26 @@ export class NgxUploaderDirectiveService {
             return;
           }
 
-          const removeFileIndex = NgxUploaderDirectiveService.queue.findIndex(file => file.id === event.id);
+          const filesToRemove = this.queue.filter((file) => file.requestId === event.id);
 
-          if (removeFileIndex !== -1) {
-            const file = NgxUploaderDirectiveService.queue[removeFileIndex];
-            NgxUploaderDirectiveService.queue.splice(removeFileIndex, 1);
-            this.fileServiceEvents.emit({ type: 'removed', file, id: event.id, fileSelectedEventType: NgxUploaderDirectiveService.queue[fileIndex].selectedEventType });
+          if (filesToRemove.length > 0) {
+            const remainingFilesArray = this.queue.filter((file) => file.requestId !== event.id);
+            this.queue = remainingFilesArray;
           }
+          this.fileServiceEvents.emit({ type: 'removed', id: event.id, files: filesToRemove, fileSelectedEventType: 'ALL' });
+
           break;
 
         case 'removeAll':
-          if (NgxUploaderDirectiveService.queue.length) {
-            NgxUploaderDirectiveService.queue = new Array<ISelectedFile>();
-            this.fileServiceEvents.emit({ type: 'removedAll', fileSelectedEventType: 'ALL' });
+          if (this.queue.length) {
+            this.queue = new Array<ISelectedFile>();
+            this.fileServiceEvents.emit({ type: 'removedAll', files: this.queue, fileSelectedEventType: 'ALL' });
           }
           break;
+      }
+
+      if (NgxUploaderDirectiveService.inputEventReferenceNumber !== event.inputReferenceNumber) {
+        NgxUploaderDirectiveService.inputEventReferenceNumber = event.inputReferenceNumber;
       }
     });
   }
@@ -242,7 +326,7 @@ export class NgxUploaderDirectiveService {
           observer.complete();
         });
 
-      // this.subscriptions.push({ id: upload.files[0].id, sub });
+      this.subscriptions.push({ id: upload.files[0].requestId, sub });
     });
   }
 
@@ -262,8 +346,7 @@ export class NgxUploaderDirectiveService {
       const headers = event.headers || {};
 
       if (this.logs && this.devEnv) {
-        console.info('Files to Upload', files);
-        console.info('Files upload with input event', event);
+        console.info('Files to Upload', fileList);
       }
 
       if (fileList.length > 0) {
@@ -282,6 +365,13 @@ export class NgxUploaderDirectiveService {
         } else {
           formData.append('file', fileList[0].nativeFile, fileList[0].name);
         }
+
+        const cancelledFiles = this.queue.filter(file => file.requestId === fileList[0].requestId);
+        if (cancelledFiles[0].progress.status === 'Cancelled') {
+          observer.complete();
+        }
+
+        observer.next({ type: 'start', id: files[0].requestId, files, fileSelectedEventType: files[0].selectedEventType });
 
         this.httpRequest(event.method, event.url, formData, new HttpHeaders(headers)).subscribe(
           // tslint:disable-next-line: no-shadowed-variable
@@ -308,7 +398,7 @@ export class NgxUploaderDirectiveService {
                   }
                 };
 
-                observer.next({ type: 'uploading', progress: fileProgress, fileSelectedEventType: files[0].selectedEventType });
+                observer.next({ type: 'uploading', id: files[0].requestId, files, progress: fileProgress, fileSelectedEventType: files[0].selectedEventType });
                 break;
 
               case HttpEventType.Response:
@@ -325,20 +415,19 @@ export class NgxUploaderDirectiveService {
                     etaHuman: this.secondsToHuman(eta || 0)
                   }
                 };
-                observer.next({ type: 'done', response: data.body, progress, fileSelectedEventType: files[0].selectedEventType });
+                observer.next({ type: 'done', id: files[0].requestId, response: data.body, progress, fileSelectedEventType: files[0].selectedEventType });
                 observer.complete();
                 break;
             }
-
           },
           (error) => {
             console.log(error);
-            observer.next({ type: 'error', response: error, fileSelectedEventType: files[0].selectedEventType });
+            observer.next({ type: 'error', id: event.id, response: error, fileSelectedEventType: files[0].selectedEventType });
             observer.complete();
           }
         );
       } else {
-        observer.next({ type: 'error', response: 'No file selected' });
+        observer.next({ type: 'error', id: event.id, response: 'No file selected' });
         observer.complete();
       }
     });
@@ -405,14 +494,13 @@ export class NgxUploaderDirectiveService {
    * @param file Selected File
    * @param fileIndex File index in array
    */
-  convertToSelectedFile(file: File, fileIndex: number, selectedEventType: 'DROP' | 'SELECT'): ISelectedFile {
-    if (this.logs && this.devEnv) {
-      console.info('Converting file to Input Selected File index: ' + fileIndex, file);
-    }
-
+  convertToSelectedFile(file: File, fileIndex: number, id: string, selectedEventType: 'DROP' | 'SELECT'): ISelectedFile {
+    // if (this.logs && this.devEnv) {
+    //   console.info('Converting file to Input Selected File index: ' + fileIndex, file);
+    // }
     return {
       fileIndex,
-      id: this.generateRandomeId(),
+      requestId: id,
       name: file.name,
       nativeFile: file,
       type: file.type,
@@ -430,5 +518,39 @@ export class NgxUploaderDirectiveService {
         }
       }
     };
+  }
+
+  /**
+   * Make chunks of array.
+   * @param array Array to make chunks.
+   * @param chunkSize Chunk size.
+   */
+  chunkArray(array: Array<any>, chunkSize: number): Array<any> {
+    const chunkedArray: Array<any> = new Array<any>();
+
+    let index = 0;
+    const arrayLength = array.length;
+
+    for (index = 0; index < arrayLength; index += chunkSize) {
+      const myChunk = array.slice(index, index + chunkSize);
+      // Do something if you want with the group
+      chunkedArray.push(myChunk);
+    }
+
+    return chunkedArray;
+  }
+
+  /**
+   * Group by an Array.
+   * @param array Array of objects
+   * @param key key
+   */
+  groupByArray(array: Array<any>, key: string) {
+    return array.reduce(
+      (previousValue, currentValue) => {
+        (previousValue[currentValue[key]] = previousValue[currentValue[key]] || []).push(currentValue);
+        return previousValue;
+      }, {}
+    );
   }
 }

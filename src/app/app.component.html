@@ -19,6 +19,8 @@
   </li>
 </ul>
 
+<input type="text" [(ngModel)]="fileId" placeholder="file Id">
+
 <div class="drop-container" ngxFileDrop [options]="options" (uploadOutput)="onUploadOutput($event)"
   [uploadInput]="uploadInput" [ngClass]="{ 'is-drop-over': dragOver }">
   <h1>Drag &amp; Drop</h1>
@@ -32,6 +34,10 @@
 
 <a href="#" class="start-upload-btn" (click)="startUpload()">
   Start Upload
+</a>
+
+<a href="#" class="start-upload-btn" (click)="removeFile(fileId)">
+  Remove file
 </a>
 
 <router-outlet></router-outlet>

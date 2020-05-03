@@ -28,6 +28,7 @@ import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ngx-uploa
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
+import { environment } from '../configs/config';
 
 @Directive({
   // tslint:disable-next-line: directive-selector
@@ -36,7 +37,7 @@ import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
 
 export class NgxUploaderDropDirective {
 
-  private devEnv = true;
+  private devEnv = !environment.production;
 
   @Input() options: IUploadOptions;
   @Input() uploadInput: EventEmitter<IUploadInput>;
@@ -76,6 +77,10 @@ export class NgxUploaderDropDirective {
         if (event.fileSelectedEventType === 'DROP' || event.fileSelectedEventType === 'ALL') {
           if (this.options.logs && this.devEnv) {
             console.info('Output drop event', event);
+          }
+          if (event.type === 'error' || event.type === 'removedAll') {
+            this.element.files = null;
+            this.element.value = '';
           }
           this.uploadOutput.emit(event);
         }
