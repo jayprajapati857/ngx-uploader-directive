@@ -1,5 +1,7 @@
 # ngx-uploader-directive
 
+[![npm version](https://badgen.net/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://badgen.net/npm/dw/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive)
+
 Angular 9 File Uploader.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.10.
 
@@ -340,6 +342,23 @@ npm start
 - Allow user to send individual request with single file
 - To make multiple requests and send files based on the parameters taken
 
+## Contributing
+
+> To get started...
+
+1. 🍴 Fork this repo!
+    
+2. 👯 Clone this repo to your local machine using `https://github.com/jayprajapati857/ngx-uploader-directive.git`
+    
+3. **HACK AWAY!** 🔨🔨🔨
+    
+4. 🔃 Create a new pull request
+
 ## LICENCE
 
-[MIT](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)
+[![licence](https://badgen.net/github/license/micromatch/micromatch)](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)
+
+## Acknowledgments
+
+* Thanks to all the contributors who invested their precious time into this.
+* Hat tip to anyone whose code was used.
