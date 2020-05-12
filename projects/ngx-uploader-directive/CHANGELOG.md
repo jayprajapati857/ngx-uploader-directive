@@ -7,8 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
-- Fixed on error of sending request for uploading file http error response was not having the request id in return.
-- Fixed if request id will be passed null it was not giving error event.
+- Fixed error event emittion.
 
 ## [1.1.3] - 2020-05-03
 

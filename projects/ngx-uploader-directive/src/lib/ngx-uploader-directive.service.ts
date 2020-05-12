@@ -65,6 +65,7 @@ export class NgxUploaderDirectiveService {
     this.maxFilesToAddInSingleRequest = 0;
     this.fileTypes = fileTypes;
     this.maxFileUploads = maxFileUploads;
+    this.maxFilesToAddInSingleRequest = maxFilesToAddInSingleRequest;
     this.maxFileSize = maxFileSize;
     this.subscriptions = new Array<{ id: string, sub: Subscription }>();
 
@@ -101,7 +102,7 @@ export class NgxUploaderDirectiveService {
       const checkingFile = selectedFiles[checkingFileIndex];
       const queueLength = allowedFiles.length + this.queue.length + 1;
 
-      if (this.isFileTypeAllowed(checkingFile.type) && queueLength <= this.maxFileUploads && this.isFileSizeAllowed(checkingFile.size)) {
+      if (this.isFileTypeAllowed(checkingFile.type) && this.isFileSizeAllowed(checkingFile.size)) {
         allowedFiles.push(checkingFile);
       } else {
         const rejectedFile: ISelectedFile = this.convertToSelectedFile(checkingFile, checkingFileIndex, this.generateRandomeId(), selectedEventType);
