@@ -1,0 +1,185 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.is-hidden {
+    display: none;
+}
+
+@keyframes flip {
+    from {
+        transform: translateY(-50%) translateX(-50%) perspective(1000px) rotateX(0deg);
+    }
+    to {
+        transform: translateY(-50%) translateX(-50%) perspective(1000px) rotateX(90deg);
+    }
+}
+
+@keyframes flipalt {
+    from {
+        transform: translateY(-50%) translateX(-50%) perspective(1400px) rotateX(-90deg);
+    }
+    to {
+        transform: translateY(-50%) translateX(-50%) perspective(1400px) rotateX(0deg);
+    }
+}
+
+.Modal.is-leaving {
+    animation-name: flip;
+    animation-duration: 0.25s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    transform-style: preserve-3d;
+}
+
+.Modal.is-entering {
+    animation-name: flipalt;
+    animation-duration: 0.25s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-out;
+    transform-style: preserve-3d;
+}
+
+.Container {
+    background-color: #ddd;
+    height: 100vh;
+}
+
+.Heading {
+    font-weight: 600;
+    margin: 0;
+}
+
+.Heading--small {
+    font-size: 1rem;
+    // margin-bottom: 0.5rem;
+}
+
+.Modal {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    left: 50%;
+    margin: auto;
+    padding: 2rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    max-width: 40rem;
+    min-width: 32rem;
+}
+
+.Modal-heading {
+    font-size: x-large;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    padding-right: 2rem;
+}
+
+.Modal-dismissButton {
+    appearance: none;
+    border: none;
+    display: block;
+    height: 2.5rem;
+    position: absolute;
+    right: 0rem;
+    top: 0rem;
+    width: 2.5rem;
+}
+
+.Modal-dismissButton:after {
+    background: none;
+    bottom: 0.25rem;
+    color: #007abf;
+    content: "×";
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    left: 0.25rem;
+    line-height: 2rem;
+    position: absolute;
+    right: 0.25rem;
+    text-align: center;
+    top: 0.25rem;
+}
+
+.Modal-dismissButton:hover:after {
+    background: #f2f2f2;
+}
+
+.Modal-dismissButton:active:after {
+    line-height: 2.1rem;
+}
+
+$icon-size--default: 24px;
+$icon-size--small: 16px;
+
+.Icon {
+    background-color: #ddd;
+    display: inline-block;
+    height: $icon-size--default;
+    vertical-align: middle;
+    width: $icon-size--default;
+}
+
+.Icon--small {
+    height: $icon-size--small;
+    width: $icon-size--small;
+}
+
+.Icon--file {
+    background: linear-gradient(225deg, transparent 15%, #7cc04a 15%);
+}
+
+li:nth-child(2n) .Icon--file {
+    background: linear-gradient(225deg, transparent 15%, #007abf 15%);
+}
+
+li:nth-child(3n) .Icon--file {
+    background: linear-gradient(225deg, transparent 15%, #ffb608 15%);
+}
+
+.Icon--small.Icon--file {
+    width: calc(16px * 0.75);
+}
+
+.has-Icon {
+    vertical-align: middle;
+}
+
+.Icon + .has-Icon,
+.has-Icon + .Icon {
+    margin-left: 0.25rem;
+}
+
+.FileList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.FileList > li {
+    margin-bottom: 0.5rem;
+}
+
+.File {
+    background-color: #f2f2f2;
+    border-radius: 4px;
+    display: inline-block;
+    line-height: 120%;
+    min-width: 12rem;
+    padding: 0.375rem 0.5rem;
+}
+
+.File:hover {
+    background-color: #e2eef5;
+}
+
+.File > input[type="checkbox"] {
+    vertical-align: middle;
+}

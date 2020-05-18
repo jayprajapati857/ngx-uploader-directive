@@ -213,7 +213,7 @@ export class NgxUploaderDirectiveService {
           break;
 
         case 'uploadAll':
-          const groupOfRequests = this.groupByArray(this.queue.filter((file) => file.progress.status === 'Queue'), 'id');
+          const groupOfRequests = this.groupByArray(this.queue.filter((file) => file.progress.status === 'Queue'), 'requestId');
           if (this.logs) {
             console.info('Group of request', groupOfRequests);
           }
@@ -314,6 +314,7 @@ export class NgxUploaderDirectiveService {
    * @param upload object with files and upload input event
    */
   startUpload(upload: { files: Array<ISelectedFile>, event: IUploadInput }): Observable<IUploadOutput> {
+    console.log('upload: ', upload);
     return new Observable(observer => {
       const sub = this.uploadFiles(upload.files, upload.event)
         .pipe(finalize(() => {
