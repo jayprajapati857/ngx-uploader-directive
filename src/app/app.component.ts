@@ -10,22 +10,31 @@ import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-
 
 export class AppComponent {
   title = 'ngx-uploader-directive';
+  uploadNew = false;
   fileId: string;
   options: IUploadOptions;
   formData: FormData;
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
-  uploadUrl = 'Api Url';
+  uploadUrl = 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile';
 
   /**
    * Default Constructor
    */
   constructor() {
-    this.options = { requestConcurrency: 1, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 1000000, logs: true };
+    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 1000000, logs: true };
     this.files = new Array<ISelectedFile>();
     this.uploadInput = new EventEmitter<IUploadInput>();
     this.formData = new FormData();
+  }
+
+  addNew() {
+    this.uploadNew = true;
+  }
+
+  attachFile() {
+    this.uploadNew = false;
   }
 
   /**

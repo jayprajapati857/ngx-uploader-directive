@@ -1,8 +1,9 @@
 # ngx-uploader-directive
 
-[![npm version](https://badgen.net/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://badgen.net/npm/dw/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive)
+[![npm version](https://badgen.net/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://badgen.net/npm/dt/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![github issues](https://badgen.net/github/open-issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues) [![github issues](https://badgen.net/github/closed-issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues?q=is:issue+is:closed) [![github last commit](https://badgen.net/github/last-commit/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive)
 
-Angular 9 File Uploader.
+Angular 9 File Uploader Directive which provides two directives, which are select and file drag and drop to upload files on server.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.10.
 
 ## Installation
