@@ -369,7 +369,7 @@ npm start
 ## Contributing
 
 > To get started...
-
+<pre>
 1. 🍴 Fork this repo!
     
 2. 👯 Clone this repo to your local machine using `https://github.com/jayprajapati857/ngx-uploader-directive.git`
@@ -377,6 +377,7 @@ npm start
 3. **HACK AWAY!** 🔨🔨🔨
     
 4. 🔃 Create a new pull request. Pull requests are kindly accepted.
+</pre>
 
 ## Donations
 
