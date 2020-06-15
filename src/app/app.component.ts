@@ -1,6 +1,7 @@
 // tslint:disable: max-line-length
 import { Component, EventEmitter } from '@angular/core';
 import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-uploader-directive';
+import { IUploadProgress } from 'projects/ngx-uploader-directive/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -11,19 +12,20 @@ import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-
 export class AppComponent {
   title = 'ngx-uploader-directive';
   uploadNew = false;
+
   fileId: string;
   options: IUploadOptions;
   formData: FormData;
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
-  uploadUrl = 'http://192.168.0.224:8099/api/blocklists/uploadblockednumberfile';
+  uploadUrl = 'http://upload.jayprajapati.in/uploadmedia';
 
   /**
    * Default Constructor
    */
   constructor() {
-    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 1000000, logs: true };
+    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 10000000, logs: true };
     this.files = new Array<ISelectedFile>();
     this.uploadInput = new EventEmitter<IUploadInput>();
     this.formData = new FormData();
@@ -31,6 +33,7 @@ export class AppComponent {
 
   addNew() {
     this.uploadNew = true;
+    this.removeAllFiles();
   }
 
   attachFile() {
@@ -53,17 +56,20 @@ export class AppComponent {
         break;
       case 'addedToQueue':
         this.files = this.files.concat(output.files);
-        console.log(this.files);
         break;
       case 'start':
-        // uploading start  
+        // uploading start
         break;
       case 'uploading':
-        this.files = this.updateFiles(this.files, output.files, 'UPDATE');
+        this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
         console.log(this.files);
         break;
       case 'removed':
-        this.files = this.updateFiles(this.files, output.files, 'REMOVE');
+        this.files = this.updateFiles(this.files, output.files, output.progress, 'REMOVE');
+        console.log(this.files);
+        break;
+      case 'removedAll':
+        this.files = new Array<ISelectedFile>();
         console.log(this.files);
         break;
       case 'dragOver':
@@ -75,7 +81,7 @@ export class AppComponent {
         break;
       case 'done':
         // The files are uploaded
-        this.files = this.updateFiles(this.files, output.files, 'UPDATE');
+        this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
         console.log(this.files);
         break;
     }
@@ -85,9 +91,10 @@ export class AppComponent {
    * Update files on output events
    * @param currentFiles Current Files Array
    * @param updatedFiles Updated Files Array
+   * @param progress File progress
    * @param action Remove or Update
    */
-  updateFiles(currentFiles: Array<ISelectedFile>, updatedFiles: Array<ISelectedFile>, action: 'REMOVE' | 'UPDATE') {
+  updateFiles(currentFiles: Array<ISelectedFile>, updatedFiles: Array<ISelectedFile>, progress: IUploadProgress, action: 'REMOVE' | 'UPDATE') {
     if (updatedFiles !== undefined) {
       if (action === 'UPDATE') {
         updatedFiles.forEach(updateFile => {
@@ -95,12 +102,19 @@ export class AppComponent {
             (currentFile, currentFileIndex, currentFilesArray) => {
               if (currentFile.name === updateFile.name) {
                 currentFilesArray[currentFileIndex] = updateFile;
+                if (progress !== undefined) {
+                  currentFilesArray[currentFileIndex].progress = progress;
+                }
               }
             }
           );
         });
       } else if (action === 'REMOVE') {
-        currentFiles = currentFiles.filter((file) => file.requestId !== updatedFiles[0].requestId);
+        if (updatedFiles.length > 0) {
+          currentFiles = currentFiles.filter((file) => file.requestId !== updatedFiles[0].requestId);
+        } else {
+          currentFiles = updatedFiles;
+        }
       }
     }
     return currentFiles;
@@ -110,19 +124,23 @@ export class AppComponent {
    * Start Upload
    */
   startUpload(): void {
-    this.formData.append('fileHasHeader', 'false');
-    this.formData.append('delimiter', ',');
+    if (this.files.length > 0) {
+      this.formData.append('fileHasHeader', 'false');
+      this.formData.append('delimiter', ',');
 
-    const event: IUploadInput = {
-      type: 'uploadAll',
-      inputReferenceNumber: Math.random(),
-      url: this.uploadUrl,
-      method: 'POST',
-      formData: this.formData,
-      headers: { Authorization: 'bearer ' + 'aetklsndfl' }
-    };
+      const event: IUploadInput = {
+        type: 'uploadAll',
+        inputReferenceNumber: Math.random(),
+        url: this.uploadUrl,
+        method: 'POST',
+        formData: this.formData,
+        headers: { Authorization: 'bearer ' + 'aetklsndfl' }
+      };
 
-    this.uploadInput.emit(event);
+      this.uploadInput.emit(event);
+    } else {
+      console.error('No files selected');
+    }
   }
 
   /**
@@ -130,6 +148,7 @@ export class AppComponent {
    * @param requestId RequestId.
    */
   cancelUpload(requestId: string): void {
+    console.log(requestId);
     this.uploadInput.emit({ type: 'cancel', inputReferenceNumber: Math.random(), requestId });
   }
 

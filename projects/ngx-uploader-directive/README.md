@@ -4,6 +4,14 @@
 
 Angular 9 File Uploader Directive which provides two directives, which are select and file drag and drop to upload files on server.
 
+Facilities provided by this directives:
+
+- Upload all selected files in a single request.
+- Only allow such type to upload settings (Ex. jpg, png, txt, pdf).
+- Maximum file upload size settings.
+- Single file in single request.
+- Multiple files in single request.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.10.
 
 ## Installation
@@ -89,7 +97,7 @@ export interface ISelectedFile {
     progress?: IUploadProgress; // File upload Progress.
     nativeFile?: File; // Native File.
     formData?: FormData; // Form data to upload with file.
-    response?: any; // Response for the selected file.
+    response?: HttpResponse<any> | HttpErrorResponse; // Response for the selected file.
 }
 
 /**
@@ -138,7 +146,7 @@ export interface IUploadOutput {
     files?: Array<ISelectedFile>; // array selected file.
     fileSelectedEventType?: 'DROP' | 'SELECT' | 'ALL'; // Type of selection of file.
     progress?: IUploadProgress; // Progress
-    response?: any; // File upload api response.
+    response?: HttpResponse<any> | HttpErrorResponse; // File upload api response.
 }
 ```
 
@@ -196,9 +204,9 @@ export class AppComponent {
     }
 
     /**
-     * Upload output events.
-     * @param output IUploadOutput Model on output.
-     */
+   * Upload output events.
+   * @param output IUploadOutput Model on output.
+   */
     onUploadOutput(output: IUploadOutput): void {
         console.log(output);
         switch (output.type) {
@@ -211,17 +219,20 @@ export class AppComponent {
                 break;
             case 'addedToQueue':
                 this.files = this.files.concat(output.files);
-                console.log(this.files);
                 break;
             case 'start':
-                // uploading start  
+                // uploading start
                 break;
             case 'uploading':
-                this.files = this.updateFiles(this.files, output.files, 'UPDATE');
+                this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
                 console.log(this.files);
                 break;
             case 'removed':
-                this.files = this.updateFiles(this.files, output.files, 'REMOVE');
+                this.files = this.updateFiles(this.files, output.files, output.progress, 'REMOVE');
+                console.log(this.files);
+                break;
+            case 'removedAll':
+                this.files = new Array<ISelectedFile>();
                 console.log(this.files);
                 break;
             case 'dragOver':
@@ -233,19 +244,20 @@ export class AppComponent {
                 break;
             case 'done':
                 // The files are uploaded
-                this.files = this.updateFiles(this.files, output.files, 'UPDATE');
+                this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
                 console.log(this.files);
                 break;
         }
     }
 
     /**
-     * Update files on output events
-     * @param currentFiles Current Files Array
-     * @param updatedFiles Updated Files Array
-     * @param action Remove or Update
-     */
-    updateFiles(currentFiles: Array<ISelectedFile>, updatedFiles: Array<ISelectedFile>, action: 'REMOVE' | 'UPDATE') {
+   * Update files on output events
+   * @param currentFiles Current Files Array
+   * @param updatedFiles Updated Files Array
+   * @param progress File progress
+   * @param action Remove or Update
+   */
+    updateFiles(currentFiles: Array<ISelectedFile>, updatedFiles: Array<ISelectedFile>, progress: IUploadProgress, action: 'REMOVE' | 'UPDATE') {
         if (updatedFiles !== undefined) {
             if (action === 'UPDATE') {
                 updatedFiles.forEach(updateFile => {
@@ -253,12 +265,19 @@ export class AppComponent {
                         (currentFile, currentFileIndex, currentFilesArray) => {
                             if (currentFile.name === updateFile.name) {
                                 currentFilesArray[currentFileIndex] = updateFile;
+                                if (progress !== undefined) {
+                                    currentFilesArray[currentFileIndex].progress = progress;
+                                }
                             }
                         }
                     );
                 });
             } else if (action === 'REMOVE') {
-                currentFiles = currentFiles.filter((file) => file.requestId !== updatedFiles[0].requestId);
+                if (updatedFiles.length > 0) {
+                    currentFiles = currentFiles.filter((file) => file.requestId !== updatedFiles[0].requestId);
+                } else {
+                    currentFiles = updatedFiles;
+                }
             }
         }
         return currentFiles;
@@ -268,19 +287,23 @@ export class AppComponent {
      * Start Upload
      */
     startUpload(): void {
-        this.formData.append('fileHasHeader', 'false');
-        this.formData.append('delimiter', ',');
+        if (this.files.length > 0) {
+            this.formData.append('fileHasHeader', 'false');
+            this.formData.append('delimiter', ',');
 
-        const event: IUploadInput = {
-            type: 'uploadAll',
-            inputReferenceNumber: Math.random(),
-            url: this.uploadUrl,
-            method: 'POST',
-            formData: this.formData,
-            headers: { Authorization: 'bearer ' + 'aetklsndfl' }
-        };
+            const event: IUploadInput = {
+                type: 'uploadAll',
+                inputReferenceNumber: Math.random(),
+                url: this.uploadUrl,
+                method: 'POST',
+                formData: this.formData,
+                headers: { Authorization: 'bearer ' + 'aetklsndfl' }
+            };
 
-        this.uploadInput.emit(event);
+            this.uploadInput.emit(event);
+        } else {
+            console.error('No files selected');
+        }
     }
 
     /**
@@ -353,7 +376,12 @@ npm start
     
 3. **HACK AWAY!** 🔨🔨🔨
     
-4. 🔃 Create a new pull request
+4. 🔃 Create a new pull request. Pull requests are kindly accepted.
+
+## Donations
+
+<a href="http://jayprajapati.in"><img src="https://www.worldfuturecouncil.org/wp-content/uploads/2018/09/Donate-Button-HEART.png" title="Donate Ngx Uploader Directive Developer" alt="Donate Ngx Uploader Directive Developer" width="170px" height="60px"></a>
+> Donate me on _+91 97 24 45 58 57_ via <a href="http://paytm.com" target="_blank">**PayTm**</a>
 
 ## LICENCE
 

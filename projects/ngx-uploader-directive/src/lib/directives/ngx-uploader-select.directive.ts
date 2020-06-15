@@ -77,10 +77,17 @@ export class NgxUploaderSelectDirective {
           if (this.options.logs && this.devEnv) {
             console.info('Output select event', event);
           }
+
           if (event.type === 'error' || event.type === 'removedAll') {
             this.element.files = null;
             this.element.value = '';
+          } else if (event.type === 'removed' || event.type === 'rejected') {
+            if (this.uploadService.queue.length === 0) {
+              this.element.files = null;
+              this.element.value = '';
+            }
           }
+
           this.uploadOutput.emit(event);
         }
       })

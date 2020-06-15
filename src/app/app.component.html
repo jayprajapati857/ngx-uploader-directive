@@ -8,16 +8,29 @@
       Choose a file or files to attach.
     </p>
     <ul class="FileList">
-      <li>
-        <label class="File" for="file--01">
-          <i class="Icon Icon--small Icon--file"></i>
-          <span class="File-name has-Icon">
-            sale-receipt--001
-          </span>
-        </label>
-        <a class="u-margin-left--small" href=""> Preview</a>
+      <li *ngFor="let file of files">
+        <div class="row">
+          <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+            <label class="File" for="file--01">
+              <i class="Icon Icon--small Icon--file"></i>
+              <span class="File-name has-Icon">
+                {{file.name}}
+              </span>
+            </label>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <button class="btn btn-sm btn-danger" (click)="removeFile(file.requestId)"
+              [disabled]="file.progress.status == 'Done'">
+              <!-- <fa-icon [icon]="faTrash"></fa-icon> --> Remove
+            </button>
+
+            <button class="btn btn-sm btn-warning" (click)="cancelUpload(file.requestId)">
+              <!-- <fa-icon [icon]="faTrash"></fa-icon> --> Cancel
+            </button>
+          </div>
+        </div>
       </li>
-      <li>
+      <!-- <li>
         <label class="File" for="file--02">
           <i class="Icon Icon--small Icon--file"></i>
           <span class="File-name has-Icon">
@@ -34,10 +47,10 @@
           </span>
         </label>
         <a class="u-margin-left--small" href=""> Preview</a>
-      </li>
+      </li> -->
     </ul>
     <div class="u-margin-top--x-large">
-      <button class="btn btn-success" style="float: left;">
+      <button class="btn btn-success" style="float: left;" (click)="startUpload()">
         Upload File(s)
       </button>
       <button class="btn btn-primary" id="switch-to-upload" (click)="addNew()" style="float: right;">
@@ -61,7 +74,8 @@
     </p>
     <div class="u-margin-top--large">
       <button class="btn btn-success" style="float: left;">
-        Choose a file to upload
+        <input type="file" ngxFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+          [uploadInput]="uploadInput" multiple>
       </button>
       <button class="btn btn-primary" (click)="attachFile()" id="switch-to-attach" style="float: right;">
         Go to files
