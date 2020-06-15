@@ -1,6 +1,6 @@
 # ngx-uploader-directive
 
-[![npm version](https://badgen.net/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://badgen.net/npm/dt/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![github issues](https://badgen.net/github/open-issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues) [![github issues](https://badgen.net/github/closed-issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues?q=is:issue+is:closed) [![github last commit](https://badgen.net/github/last-commit/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive)
+[![npm version](https://img.shields.io/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://img.shields.io/npm/dt/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![github issues](https://img.shields.io/github/issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues) [![github issues](https://img.shields.io/github/issues-closed/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues?q=is:issue+is:closed) [![github last commit](https://img.shields.io/github/last-commit/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive)
 
 Angular 9 File Uploader Directive which provides two directives, which are select and file drag and drop to upload files on server.
 
@@ -369,7 +369,7 @@ npm start
 ## Contributing
 
 > To get started...
-
+<pre>
 1. 🍴 Fork this repo!
     
 2. 👯 Clone this repo to your local machine using `https://github.com/jayprajapati857/ngx-uploader-directive.git`
@@ -377,6 +377,7 @@ npm start
 3. **HACK AWAY!** 🔨🔨🔨
     
 4. 🔃 Create a new pull request. Pull requests are kindly accepted.
+</pre>
 
 ## Donations
 
