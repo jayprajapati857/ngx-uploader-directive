@@ -44,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added File select directive
 - Uploading files in a single request
 
-[1.1.4]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.4...1.1.3
+[1.1.4]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.3...1.1.4
 [1.1.3]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.0...1.1.2
 [1.1.0]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.0.0...1.1.0
