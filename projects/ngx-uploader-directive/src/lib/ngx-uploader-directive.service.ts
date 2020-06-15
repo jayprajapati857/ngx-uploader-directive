@@ -27,7 +27,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ngx-uploader-directive-models';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { finalize, mergeMap, switchMap } from 'rxjs/operators';
-import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders } from '@angular/common/http';
+import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { environment } from './configs/config';
 
 // @Injectable({
@@ -50,6 +50,7 @@ export class NgxUploaderDirectiveService {
   maxFileSize: number;
   requestConcurrency: number;
   maxFilesToAddInSingleRequest: number;
+  httpErrorResponse: HttpErrorResponse;
 
   constructor(
     requestConcurrency: number = Number.POSITIVE_INFINITY,
@@ -90,7 +91,8 @@ export class NgxUploaderDirectiveService {
     }
 
     if (selectedFiles.length > this.maxFileUploads) {
-      this.fileServiceEvents.emit({ type: 'error', response: 'Maxium ' + this.maxFileUploads + ' files can be upload', fileSelectedEventType: selectedEventType });
+      this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Maxium ' + this.maxFileUploads + ' files can be upload' });
+      this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: selectedEventType });
       return;
     }
 
@@ -111,7 +113,8 @@ export class NgxUploaderDirectiveService {
     }
 
     if (rejectedFiles.length > 0) {
-      this.fileServiceEvents.emit({ type: 'rejected', files: rejectedFiles, fileSelectedEventType: selectedEventType });
+      this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Invalid file type or file size exceeded the limit ' + this.humanizeBytes(this.maxFileSize), statusText: 'Invalid Input' });
+      this.fileServiceEvents.emit({ type: 'rejected', files: rejectedFiles, fileSelectedEventType: selectedEventType, response: this.httpErrorResponse });
     }
 
     if (this.logs) {
@@ -198,7 +201,8 @@ export class NgxUploaderDirectiveService {
       switch (event.type) {
         case 'uploadFile':
           if (!requestId) {
-            this.fileServiceEvents.emit({ type: 'error', response: 'Invalid request id.', fileSelectedEventType: 'ALL' });
+            this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Invalid request id.', statusText: 'Invalid Input' });
+            this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: 'ALL' });
             return;
           }
 
@@ -231,13 +235,18 @@ export class NgxUploaderDirectiveService {
 
         case 'cancel':
           if (!requestId) {
-            this.fileServiceEvents.emit({ type: 'error', response: 'Invalid request id.', fileSelectedEventType: 'ALL' });
+            this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Invalid request id.', statusText: 'Invalid Input' });
+            this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: 'ALL' });
             return;
           }
           const subs = this.subscriptions.filter(sub => sub.id === requestId);
+          if (this.logs && this.devEnv) {
+            console.info('subscriptions ', subs);
+          }
           subs.forEach(sub => {
             if (sub.sub) {
               sub.sub.unsubscribe();
+
               // tslint:disable-next-line: no-shadowed-variable
               const cancelledFilesArray = this.queue.filter((file) => file.requestId === requestId);
               if (cancelledFilesArray.length > 0) {
@@ -245,6 +254,9 @@ export class NgxUploaderDirectiveService {
                   queue[fileIndex].progress.status = 'Cancelled';
                 });
                 this.fileServiceEvents.emit({ type: 'cancelled', requestId, files: cancelledFilesArray, fileSelectedEventType: cancelledFilesArray[0].selectedEventType });
+              } else {
+                this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Files not found with request id ' + requestId });
+                this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: 'ALL' });
               }
             }
           });
@@ -262,13 +274,17 @@ export class NgxUploaderDirectiveService {
                 queue[fileIndex].progress.status = 'Cancelled';
               });
               this.fileServiceEvents.emit({ type: 'cancelled', files: canceldFileArray, fileSelectedEventType: canceldFileArray[0].selectedEventType });
+            } else {
+              this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Files not found with request id ' + requestId, statusText: 'Invalid Input' });
+              this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: 'ALL' });
             }
           });
           break;
 
         case 'remove':
           if (!requestId) {
-            this.fileServiceEvents.emit({ type: 'error', response: 'Invalid request id.', fileSelectedEventType: 'ALL' });
+            this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Invalid request id.', statusText: 'Invalid Input' });
+            this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: 'ALL' });
             return;
           }
 
@@ -277,8 +293,11 @@ export class NgxUploaderDirectiveService {
           if (filesToRemove.length > 0) {
             const remainingFilesArray = this.queue.filter((file) => file.requestId !== event.requestId);
             this.queue = remainingFilesArray;
+            this.fileServiceEvents.emit({ type: 'removed', requestId: event.requestId, files: filesToRemove, fileSelectedEventType: 'ALL' });
+          } else {
+            this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Files not found with request id ' + requestId, statusText: 'Invalid Input' });
+            this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: 'ALL' });
           }
-          this.fileServiceEvents.emit({ type: 'removed', requestId: event.requestId, files: filesToRemove, fileSelectedEventType: 'ALL' });
 
           break;
 
@@ -314,7 +333,6 @@ export class NgxUploaderDirectiveService {
    * @param upload object with files and upload input event
    */
   startUpload(upload: { files: Array<ISelectedFile>, event: IUploadInput }): Observable<IUploadOutput> {
-    console.log('upload: ', upload);
     return new Observable(observer => {
       const sub = this.uploadFiles(upload.files, upload.event)
         .pipe(finalize(() => {
@@ -332,6 +350,9 @@ export class NgxUploaderDirectiveService {
         });
 
       this.subscriptions.push({ id: upload.files[0].requestId, sub });
+      if (this.logs && this.devEnv) {
+        console.info('subscriptions ', this.subscriptions);
+      }
     });
   }
 
@@ -420,7 +441,7 @@ export class NgxUploaderDirectiveService {
                     etaHuman: this.secondsToHuman(eta || 0)
                   }
                 };
-                observer.next({ type: 'done', requestId: files[0].requestId, response: data.body, progress, fileSelectedEventType: files[0].selectedEventType });
+                observer.next({ type: 'done', requestId: files[0].requestId, response: data, progress, fileSelectedEventType: files[0].selectedEventType, files });
                 observer.complete();
                 break;
             }
@@ -432,7 +453,8 @@ export class NgxUploaderDirectiveService {
           }
         );
       } else {
-        observer.next({ type: 'error', requestId: files[0].requestId, response: 'No file selected' });
+        this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Files not available for upload', statusText: 'Invalid Input' });
+        observer.next({ type: 'error', requestId: files[0].requestId, response: this.httpErrorResponse });
         observer.complete();
       }
     });

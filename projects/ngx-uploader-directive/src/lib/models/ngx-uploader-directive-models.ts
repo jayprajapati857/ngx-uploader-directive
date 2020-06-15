@@ -21,6 +21,8 @@
  * SOFTWARE.
  */
 
+import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+
 /**
  * File Upload Options.
  */
@@ -45,7 +47,7 @@ export interface ISelectedFile {
     progress?: IUploadProgress; // File upload Progress.
     nativeFile?: File; // Native File.
     formData?: FormData; // Form data to upload with file.
-    response?: any; // Response for the selected file.
+    response?: HttpResponse<any> | HttpErrorResponse; // Response for the selected file.
 }
 
 /**
@@ -94,5 +96,5 @@ export interface IUploadOutput {
     files?: Array<ISelectedFile>; // array selected file.
     fileSelectedEventType?: 'DROP' | 'SELECT' | 'ALL'; // Type of selection of file.
     progress?: IUploadProgress; // Progress
-    response?: any; // File upload api response.
+    response?: HttpResponse<any> | HttpErrorResponse; // File upload api response.
 }
