@@ -441,7 +441,7 @@ export class NgxUploaderDirectiveService {
                     etaHuman: this.secondsToHuman(eta || 0)
                   }
                 };
-                observer.next({ type: 'done', requestId: files[0].requestId, response: data, progress, fileSelectedEventType: files[0].selectedEventType, files });
+                observer.next({ type: 'done', requestId: files[0].requestId, response: data.body, progress, fileSelectedEventType: files[0].selectedEventType, files });
                 observer.complete();
                 break;
             }
