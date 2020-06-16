@@ -97,7 +97,7 @@ export interface ISelectedFile {
     progress?: IUploadProgress; // File upload Progress.
     nativeFile?: File; // Native File.
     formData?: FormData; // Form data to upload with file.
-    response?: HttpResponse<any> | HttpErrorResponse; // Response for the selected file.
+    response?: any; // Response for the selected file.
 }
 
 /**
@@ -146,7 +146,7 @@ export interface IUploadOutput {
     files?: Array<ISelectedFile>; // array selected file.
     fileSelectedEventType?: 'DROP' | 'SELECT' | 'ALL'; // Type of selection of file.
     progress?: IUploadProgress; // Progress
-    response?: HttpResponse<any> | HttpErrorResponse; // File upload api response.
+    response?: any; // File upload api response.
 }
 ```
 
