@@ -132,7 +132,7 @@ export interface IUploadInput {
     fieldName?: string; // Input field name.
     fileIndex?: number; // Input file index to upload.
     file?: ISelectedFile; // Input array selected file.
-    formData?: FormData; // Input form data to pass with file.
+    data?: { [key: string]: string | Blob }; // Input data to pass with file.
     headers?: { [key: string]: string }; // Input headers to pass with upload request.
 }
 
@@ -162,7 +162,9 @@ const event: IUploadInput = {
     inputReferenceNumber: Math.random(),
     url: this.uploadUrl,
     method: 'POST',
-    formData: this.formData,
+    data: {
+        foo: 'bar'
+    },
     headers: { Authorization: 'bearer ' + 'aetklsndfl' }
 };
 ```
@@ -186,8 +188,7 @@ import { IUploadOptions, ISelectedFile, IUploadInput, IUploadOutput } from 'ngx-
 
 export class AppComponent {
     title = 'ngx-uploader-directive';
-    options: IUploadOptions;
-    formData: FormData;
+    options: IUploadOptions;    
     files: Array<ISelectedFile>;
     uploadInput: EventEmitter<IUploadInput>;
     dragOver: boolean;
@@ -200,7 +201,6 @@ export class AppComponent {
         this.options = { requestConcurrency: 1, maxFilesToAddInSingleRequest: 10, maxFileUploads: 5, maxFileSize: 1000000, logs: true };
         this.files = new Array<ISelectedFile>();
         this.uploadInput = new EventEmitter<IUploadInput>();
-        this.formData = new FormData();
     }
 
     /**
@@ -296,7 +296,9 @@ export class AppComponent {
                 inputReferenceNumber: Math.random(),
                 url: this.uploadUrl,
                 method: 'POST',
-                formData: this.formData,
+                data: {
+                    foo: 'bar'
+                },
                 headers: { Authorization: 'bearer ' + 'aetklsndfl' }
             };
 
@@ -361,10 +363,11 @@ npm start
 
 ## Future plans
 
-**Currently all the files are being sent in a single request though we have taken some params like `requestConcurrency` and `maxFilesToAddInSingleRequest` to send files.**
+- Cancel uploading files request.
 
-- Allow user to send individual request with single file
-- To make multiple requests and send files based on the parameters taken
+## Changelog
+
+[Changelog](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/CHANGELOG.md)
 
 ## Contributing
 
@@ -382,11 +385,11 @@ npm start
 ## Donations
 
 <a href="http://jayprajapati.in"><img src="https://www.worldfuturecouncil.org/wp-content/uploads/2018/09/Donate-Button-HEART.png" title="Donate Ngx Uploader Directive Developer" alt="Donate Ngx Uploader Directive Developer" width="170px" height="60px"></a>
-> Donate me on _+91 97 24 45 58 57_ via <a href="http://paytm.com" target="_blank">**PayTm**</a>
+> Donate me on _+91 97 24 45 58 57_  via <a href="http://paytm.com" target="_blank">**PayTm**</a>
 
 ## LICENCE
 
-[![licence](https://badgen.net/github/license/micromatch/micromatch)](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)
+[![licence](https://img.shields.io/github/license/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/blob/master/LICENSE)
 
 ## Acknowledgments
 

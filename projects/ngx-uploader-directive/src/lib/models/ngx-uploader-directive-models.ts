@@ -82,7 +82,7 @@ export interface IUploadInput {
     fieldName?: string; // Input field name.
     fileIndex?: number; // Input file index to upload.
     file?: ISelectedFile; // Input array selected file.
-    formData?: FormData; // Input form data to pass with file.
+    data?: { [key: string]: string | Blob }; // Input data to pass with file.
     headers?: { [key: string]: string }; // Input headers to pass with upload request.
 }
 

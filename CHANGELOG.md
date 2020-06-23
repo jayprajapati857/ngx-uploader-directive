@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2020-06-23
+
+### Fixed
+- Multiple files in multiple request without copying to first requests file to next request.
+
+### Changed 
+- IUploadInput formdata to data with key value pair instead of formdata. Because taking as formdata and sending to api call its copying previous requests formdata to new request also.
+
 ## [1.1.7] - 2020-06-16
 
 ### Fixed 
@@ -54,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added File select directive
 - Uploading files in a single request
 
+[1.2.0]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.7...1.2.0
 [1.1.7]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.5...1.1.7
 [1.1.5]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.4...1.1.5
 [1.1.4]: https://github.com/jayprajapati857/ngx-uploader-directive/compare/1.1.3...1.1.4

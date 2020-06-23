@@ -378,8 +378,8 @@ export class NgxUploaderDirectiveService {
       if (fileList.length > 0) {
         let formData: FormData = new FormData();
 
-        if (event.formData !== undefined) {
-          formData = event.formData;
+        if (event.data !== undefined) {
+          Object.keys(event.data).forEach(key => formData.append(key, event.data[key]));
         }
 
         if (fileList.length > 1) {

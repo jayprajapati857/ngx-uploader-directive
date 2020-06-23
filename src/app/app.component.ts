@@ -15,7 +15,6 @@ export class AppComponent {
 
   fileId: string;
   options: IUploadOptions;
-  formData: FormData;
   files: Array<ISelectedFile>;
   uploadInput: EventEmitter<IUploadInput>;
   dragOver: boolean;
@@ -28,7 +27,6 @@ export class AppComponent {
     this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 10000000, logs: true };
     this.files = new Array<ISelectedFile>();
     this.uploadInput = new EventEmitter<IUploadInput>();
-    this.formData = new FormData();
   }
 
   addNew() {
@@ -84,6 +82,9 @@ export class AppComponent {
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
         console.log(this.files);
         break;
+      case 'error':
+        console.log(output);
+        break;
     }
   }
 
@@ -125,15 +126,15 @@ export class AppComponent {
    */
   startUpload(): void {
     if (this.files.length > 0) {
-      this.formData.append('fileHasHeader', 'false');
-      this.formData.append('delimiter', ',');
 
       const event: IUploadInput = {
         type: 'uploadAll',
         inputReferenceNumber: Math.random(),
         url: this.uploadUrl,
         method: 'POST',
-        formData: this.formData,
+        data: {
+          foo: 'bar'
+        },
         headers: { Authorization: 'bearer ' + 'aetklsndfl' }
       };
 
