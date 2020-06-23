@@ -24,7 +24,7 @@ export class AppComponent {
    * Default Constructor
    */
   constructor() {
-    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 10000000, logs: true };
+    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 10000000, logs: false };
     this.files = new Array<ISelectedFile>();
     this.uploadInput = new EventEmitter<IUploadInput>();
   }
