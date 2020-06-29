@@ -24,7 +24,7 @@ export class AppComponent {
    * Default Constructor
    */
   constructor() {
-    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 10000000, logs: false };
+    this.options = { requestConcurrency: 3, maxFilesToAddInSingleRequest: 2, maxFileUploads: 10, maxFileSize: 10000000, logs: true };
     this.files = new Array<ISelectedFile>();
     this.uploadInput = new EventEmitter<IUploadInput>();
   }
@@ -60,7 +60,7 @@ export class AppComponent {
         break;
       case 'uploading':
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
-        console.log(this.files);
+        // console.log(this.files);
         break;
       case 'removed':
         this.files = this.updateFiles(this.files, output.files, output.progress, 'REMOVE');
@@ -68,7 +68,7 @@ export class AppComponent {
         break;
       case 'removedAll':
         this.files = new Array<ISelectedFile>();
-        console.log(this.files);
+        // console.log(this.files);
         break;
       case 'dragOver':
         this.dragOver = true;
@@ -80,7 +80,7 @@ export class AppComponent {
       case 'done':
         // The files are uploaded
         this.files = this.updateFiles(this.files, output.files, output.progress, 'UPDATE');
-        console.log(this.files);
+        // console.log(this.files);
         break;
       case 'error':
         console.log(output);
@@ -167,5 +167,9 @@ export class AppComponent {
    */
   removeAllFiles(): void {
     this.uploadInput.emit({ type: 'removeAll', inputReferenceNumber: Math.random() });
+  }
+
+  cancellAllFiles(): void {
+    this.uploadInput.emit({ type: 'cancelAll', inputReferenceNumber: Math.random() });
   }
 }

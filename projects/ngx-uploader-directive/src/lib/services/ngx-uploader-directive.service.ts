@@ -23,12 +23,12 @@
 
 // tslint:disable: max-line-length
 // tslint:disable: no-console
-import { Injectable, EventEmitter } from '@angular/core';
-import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from './models/ngx-uploader-directive-models';
+import { EventEmitter } from '@angular/core';
+import { ISelectedFile, IUploadOutput, IUploadInput, IUploadProgress } from '../models/ngx-uploader-directive-models';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { finalize, mergeMap, switchMap } from 'rxjs/operators';
 import { HttpRequest, HttpClient, HttpEventType, HttpHandler, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { environment } from './configs/config';
+import { environment } from '../configs/config';
 
 // @Injectable({
 //   providedIn: 'root'
@@ -86,10 +86,6 @@ export class NgxUploaderDirectiveService {
     this.queue = new Array<ISelectedFile>();
     this.fileServiceEvents.emit({ type: 'init', fileSelectedEventType: selectedEventType });
 
-    if (this.logs && this.devEnv) {
-      console.info('Handling selected files', selectedFiles);
-    }
-
     if (selectedFiles.length > this.maxFileUploads) {
       this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Maxium ' + this.maxFileUploads + ' files can be upload' });
       this.fileServiceEvents.emit({ type: 'error', response: this.httpErrorResponse, fileSelectedEventType: selectedEventType });
@@ -126,9 +122,6 @@ export class NgxUploaderDirectiveService {
     const totalFilesAdded: Array<ISelectedFile> = new Array<ISelectedFile>();
 
     if (this.maxFilesToAddInSingleRequest === 0 || this.maxFilesToAddInSingleRequest === 1) {
-      if (this.logs && this.devEnv) {
-        console.info('Single file or Single Request');
-      }
       const eventId = this.generateRandomeId();
       // tslint:disable-next-line: prefer-for-of
       for (let fileIndex = 0; fileIndex < allowedFiles.length; fileIndex++) {
@@ -148,9 +141,6 @@ export class NgxUploaderDirectiveService {
         this.fileServiceEvents.emit({ type: 'addedToQueue', files: filesAddedToQueue, requestId: selectedFile.requestId, fileSelectedEventType: selectedEventType });
       }
     } else {
-      if (this.logs && this.devEnv) {
-        console.info('Multiple file multiple request');
-      }
       // generate id for max files to add in single request.
       const chunkedArray = this.chunkArray(allowedFiles, this.maxFilesToAddInSingleRequest);
       let fileIndex = 0;
@@ -267,7 +257,9 @@ export class NgxUploaderDirectiveService {
             if (sub.sub) {
               sub.sub.unsubscribe();
             }
-
+            if (this.logs && this.devEnv) {
+              console.info('subscriptions ', subs);
+            }
             const canceldFileArray = this.queue.filter((uploadFile) => uploadFile.requestId === sub.id);
             if (canceldFileArray.length > 0) {
               this.queue.forEach((file, fileIndex, queue) => {
@@ -334,7 +326,7 @@ export class NgxUploaderDirectiveService {
    */
   startUpload(upload: { files: Array<ISelectedFile>, event: IUploadInput }): Observable<IUploadOutput> {
     return new Observable(observer => {
-      const sub = this.uploadFiles(upload.files, upload.event)
+      const sub = this.uploadFilesXHRRequest(upload.files, upload.event)
         .pipe(finalize(() => {
           if (!observer.closed) {
             observer.complete();
@@ -361,7 +353,7 @@ export class NgxUploaderDirectiveService {
    * @param files Array of files input
    * @param event Upload inout event
    */
-  uploadFiles(files: Array<ISelectedFile>, event: IUploadInput): Observable<IUploadOutput> {
+  uploadFilesHttpRequest(files: Array<ISelectedFile>, event: IUploadInput): Observable<IUploadOutput> {
     return new Observable(observer => {
       const time: number = new Date().getTime();
 
@@ -376,7 +368,7 @@ export class NgxUploaderDirectiveService {
       }
 
       if (fileList.length > 0) {
-        let formData: FormData = new FormData();
+        const formData: FormData = new FormData();
 
         if (event.data !== undefined) {
           Object.keys(event.data).forEach(key => formData.append(key, event.data[key]));
@@ -399,7 +391,12 @@ export class NgxUploaderDirectiveService {
 
         observer.next({ type: 'start', requestId: files[0].requestId, files, fileSelectedEventType: files[0].selectedEventType });
 
-        this.httpRequest(event.method, event.url, formData, new HttpHeaders(headers)).subscribe(
+        const req = new HttpRequest(event.method, event.url, formData, {
+          headers: new HttpHeaders(headers),
+          reportProgress: true
+        });
+
+        this.httpClient.request(req).subscribe(
           // tslint:disable-next-line: no-shadowed-variable
           (data) => {
             switch (data.type) {
@@ -452,11 +449,130 @@ export class NgxUploaderDirectiveService {
             observer.complete();
           }
         );
+
       } else {
         this.httpErrorResponse = new HttpErrorResponse({ status: 0, error: 'Files not available for upload', statusText: 'Invalid Input' });
         observer.next({ type: 'error', requestId: files[0].requestId, response: this.httpErrorResponse });
         observer.complete();
       }
+    });
+  }
+
+  uploadFilesXHRRequest(files: Array<ISelectedFile>, event: IUploadInput): Observable<IUploadOutput> {
+    return new Observable(observer => {
+      const url = event.url || '';
+      const method = event.method || 'POST';
+      const data = event.data || {};
+      const headers = event.headers || {};
+
+      const xhr = new XMLHttpRequest();
+      const time: number = new Date().getTime();
+      let progressStartTime: number = (files[0].progress.data && files[0].progress.data.startTime) || time;
+      let speed = 0;
+      let eta: number | null = null;
+
+      xhr.upload.addEventListener('progress', (e: ProgressEvent) => {
+        if (e.lengthComputable) {
+          const percentage = Math.round((e.loaded * 100) / e.total);
+          const diff = new Date().getTime() - time;
+          speed = Math.round(e.loaded / diff * 1000);
+          progressStartTime = (files[0].progress.data && files[0].progress.data.startTime) || new Date().getTime();
+          eta = Math.ceil((e.total - e.loaded) / speed);
+
+          const fileProgress: IUploadProgress = {
+            status: 'Uploading',
+            data: {
+              percentage,
+              speed,
+              speedHuman: `${this.humanizeBytes(speed)}/s`,
+              startTime: progressStartTime,
+              endTime: null,
+              eta,
+              etaHuman: this.secondsToHuman(eta)
+            }
+          };
+
+          observer.next({ type: 'uploading', requestId: files[0].requestId, files, progress: fileProgress, fileSelectedEventType: files[0].selectedEventType });
+        }
+      }, false);
+
+      xhr.upload.addEventListener('error', (e: Event) => {
+        observer.error(e);
+        observer.complete();
+      });
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          let totalSize = 0;
+          files.forEach((file, index) => {
+            totalSize += file.nativeFile.size;
+          });
+          const speedAverage = Math.round(totalSize / (new Date().getTime() - progressStartTime) * 1000);
+          const progress: IUploadProgress = {
+            status: 'Done',
+            data: {
+              percentage: 100,
+              speed: speedAverage,
+              speedHuman: `${this.humanizeBytes(speedAverage)}/s`,
+              startTime: progressStartTime,
+              endTime: new Date().getTime(),
+              eta,
+              etaHuman: this.secondsToHuman(eta || 0)
+            }
+          };
+
+          try {
+            files.forEach((file, index, filesArray) => {
+              filesArray[index].response = xhr.status;
+            });
+          } catch (e) {
+            files.forEach((file, index, filesArray) => {
+              filesArray[index].response = xhr.status;
+            });
+          }
+
+          // file.responseHeaders = this.parseResponseHeaders(xhr.getAllResponseHeaders());
+
+          observer.next({ type: 'done', requestId: files[0].requestId, response: data.body, progress, fileSelectedEventType: files[0].selectedEventType, files });
+
+          observer.complete();
+        }
+      };
+
+      xhr.open(method, url, true);
+      // xhr.withCredentials = event.withCredentials ? true : false;
+
+      try {
+        const uploadIndex = this.queue.findIndex(outFile => outFile.requestId === files[0].requestId);
+
+        if (this.queue[uploadIndex].progress.status === 'Cancelled') {
+          observer.complete();
+        }
+
+        Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]));
+
+        const bodyToSend: FormData = new FormData();
+
+        Object.keys(data).forEach(key => bodyToSend.append(key, data[key]));
+        if (files.length > 1) {
+          for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+            const element = files[fileIndex];
+            bodyToSend.append('file_' + (fileIndex + 1), files[fileIndex].nativeFile, files[fileIndex].name);
+          }
+        } else {
+          bodyToSend.append(event.fieldName || 'file', files[0].nativeFile, files[0].name);
+        }
+
+        this.fileServiceEvents.emit({ type: 'start', requestId: files[0].requestId, files, fileSelectedEventType: files[0].selectedEventType });
+        xhr.send(bodyToSend);
+
+      } catch (e) {
+        observer.complete();
+      }
+
+      return () => {
+        xhr.abort();
+      };
     });
   }
 

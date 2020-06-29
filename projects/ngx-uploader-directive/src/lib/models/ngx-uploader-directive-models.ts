@@ -46,7 +46,6 @@ export interface ISelectedFile {
     selectedEventType: 'DROP' | 'SELECT'; // Type of selection of file.
     progress?: IUploadProgress; // File upload Progress.
     nativeFile?: File; // Native File.
-    formData?: FormData; // Form data to upload with file.
     response?: any; // Response for the selected file.
 }
 

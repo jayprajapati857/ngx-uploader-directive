@@ -27,7 +27,7 @@ import { Directive, Input, EventEmitter, Output, ElementRef, HostListener } from
 import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ngx-uploader-directive-models';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
+import { NgxUploaderDirectiveService } from '../services/ngx-uploader-directive.service';
 import { environment } from '../configs/config';
 
 @Directive({

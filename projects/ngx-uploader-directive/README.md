@@ -7,10 +7,12 @@ Angular 9 File Uploader Directive which provides two directives, which are selec
 Facilities provided by this directives:
 
 - Upload all selected files in a single request.
-- Only allow such type to upload settings (Ex. jpg, png, txt, pdf).
-- Maximum file upload size settings.
 - Single file in single request.
 - Multiple files in single request.
+- Multiple files in multiple request (as configured).
+- Cancel ongoing requests.
+- Only allow such type to upload settings (Ex. jpg, png, txt, pdf).
+- Maximum file upload size settings.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.10.
 
@@ -96,7 +98,6 @@ export interface ISelectedFile {
     selectedEventType: 'DROP' | 'SELECT'; // Type of selection of file.
     progress?: IUploadProgress; // File upload Progress.
     nativeFile?: File; // Native File.
-    formData?: FormData; // Form data to upload with file.
     response?: any; // Response for the selected file.
 }
 
@@ -360,10 +361,6 @@ npm install
 
 npm start
 ```
-
-## Future plans
-
-- Cancel uploading files request.
 
 ## Changelog
 

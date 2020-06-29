@@ -27,7 +27,7 @@ import { Directive, Input, EventEmitter, Output, ElementRef } from '@angular/cor
 import { IUploadOptions, IUploadInput, IUploadOutput } from '../models/ngx-uploader-directive-models';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { NgxUploaderDirectiveService } from '../ngx-uploader-directive.service';
+import { NgxUploaderDirectiveService } from '../services/ngx-uploader-directive.service';
 import { environment } from '../configs/config';
 
 @Directive({
@@ -74,10 +74,6 @@ export class NgxUploaderSelectDirective {
     this.subscriptions.push(
       this.uploadService.fileServiceEvents.subscribe((event: IUploadOutput) => {
         if (event.fileSelectedEventType === 'SELECT' || event.fileSelectedEventType === 'ALL') {
-          if (this.options.logs && this.devEnv) {
-            console.info('Output select event', event);
-          }
-
           if (event.type === 'error' || event.type === 'removedAll') {
             this.element.files = null;
             this.element.value = '';
@@ -111,9 +107,6 @@ export class NgxUploaderSelectDirective {
 
   fileListener = () => {
     // tslint:disable-next-line: no-console
-    if (this.options.logs && this.devEnv) {
-      console.info('File changes', this.element.files);
-    }
     if (this.element.files) {
       // call service method to handle selected files
       this.uploadService.handleSelectedFiles(this.element.files, 'SELECT');
