@@ -24,6 +24,11 @@ Add `ngx-uploader-directive` module as dependency to your project.
 npm install ngx-uploader-directive --save
 ```
 
+#### Update
+```console
+npm update ngx-uploader-directive
+```
+
 ## Usage
 
 1. Import `NgxUploaderDirectiveModule` into your AppModule or in module where you will use it.
