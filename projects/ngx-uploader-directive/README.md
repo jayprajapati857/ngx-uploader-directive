@@ -374,7 +374,7 @@ npm start
 ## Contributing
 
 > To get started...
-<pre>
+
 1. 🍴 Fork this repo!
     
 2. 👯 Clone this repo to your local machine using `https://github.com/jayprajapati857/ngx-uploader-directive.git`
@@ -382,12 +382,24 @@ npm start
 3. **HACK AWAY!** 🔨🔨🔨
     
 4. 🔃 Create a new pull request. Pull requests are kindly accepted.
-</pre>
+
+
+## Project created & Maintained by
+
+Jay Prajapati
+
+<a href="https://www.linkedin.com/in/jayprajapati857"><img src="https://github.com/aritraroy/social-icons/blob/master/linkedin-icon.png?raw=true" width="60"></a> <a href="https://twitter.com/_jayprajapati"><img src="https://github.com/aritraroy/social-icons/blob/master/twitter-icon.png?raw=true" width="60"></a> <a href="https://medium.com/@_jay.prajapati"><img src="https://github.com/aritraroy/social-icons/blob/master/medium-icon.png?raw=true" width="60"></a> <a href="https://www.facebook.com/jayprajapati857"><img src="https://github.com/aritraroy/social-icons/blob/master/facebook-icon.png?raw=true" width="60"></a> <a href="https://www.instagram.com/_jay.prajapati"><img src="https://github.com/aritraroy/social-icons/blob/master/instagram-icon.png?raw=true" width="60"></a>
+
+> If you are happy to use this project and found this project helpful for you as well as others or you learned something from the source code of this project and want to thank me, 
+
+- Be a [Stargazer](https://github.com/jayprajapati857/ngx-uploader-directive) to this repository.
+- Share with your friends and colleagues.
+- Follow and Endorse me on [linkedin](https://www.linkedin.com/in/jayprajapati857).
+- Donate to [developer](http://jayprajapati.in/) of this project.
 
 ## Donations
 
-<a href="http://jayprajapati.in"><img src="https://www.worldfuturecouncil.org/wp-content/uploads/2018/09/Donate-Button-HEART.png" title="Donate Ngx Uploader Directive Developer" alt="Donate Ngx Uploader Directive Developer" width="170px" height="60px"></a>
-> Donate me on _+91 97 24 45 58 57_  via <a href="http://paytm.com" target="_blank">**PayTm**</a>
+- [PayPal](https://www.paypal.me/jdprajapati)
 
 ## LICENCE
 
