@@ -386,7 +386,7 @@ npm start
 
 ## Project created & Maintained by
 
-Jay Prajapati
+[Jay Prajapati](https://github.com/jayprajapati857)
 
 <a href="https://www.linkedin.com/in/jayprajapati857"><img src="https://github.com/aritraroy/social-icons/blob/master/linkedin-icon.png?raw=true" width="60"></a> <a href="https://twitter.com/_jayprajapati"><img src="https://github.com/aritraroy/social-icons/blob/master/twitter-icon.png?raw=true" width="60"></a> <a href="https://medium.com/@_jay.prajapati"><img src="https://github.com/aritraroy/social-icons/blob/master/medium-icon.png?raw=true" width="60"></a> <a href="https://www.facebook.com/jayprajapati857"><img src="https://github.com/aritraroy/social-icons/blob/master/facebook-icon.png?raw=true" width="60"></a> <a href="https://www.instagram.com/_jay.prajapati"><img src="https://github.com/aritraroy/social-icons/blob/master/instagram-icon.png?raw=true" width="60"></a>
 
