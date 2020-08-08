@@ -81,5 +81,6 @@
     "tslint": "~5.11.0",
     "typescript": "~3.2.2",
     "npm-registry-fetch": ">=4.0.5"
-  }
+  },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" } 
 }
