@@ -1,6 +1,6 @@
 {
   "name": "ngx-uploader-directive",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Angular 9 File Uploader Directive which provides two directives, which are select and file drag and drop to upload files on server.",
   "repository": {
     "type": "git",
@@ -36,8 +36,10 @@
     "build:lib": "ng build ngx-uploader-directive-lib",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "publishConfig": { "registry": "https://npm.pkg.github.com/" }
+    "e2e": "ng e2e"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
   "private": true,
   "dependencies": {
