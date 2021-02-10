@@ -1,8 +1,8 @@
 # ngx-uploader-directive
 
-[![npm version](https://img.shields.io/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://img.shields.io/npm/dt/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![github issues](https://img.shields.io/github/issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues) [![github issues](https://img.shields.io/github/issues-closed/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues?q=is:issue+is:closed) [![github last commit](https://img.shields.io/github/last-commit/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive)
+[![npm version](https://img.shields.io/npm/v/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![npm downloads](https://img.shields.io/npm/dt/ngx-uploader-directive)](https://www.npmjs.com/package/ngx-uploader-directive) [![github issues](https://img.shields.io/github/issues/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues) [![github issues](https://img.shields.io/github/issues-closed/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive/issues?q=is:issue+is:closed) [![github last commit](https://img.shields.io/github/last-commit/jayprajapati857/ngx-uploader-directive)](https://github.com/jayprajapati857/ngx-uploader-directive) [![github forks](https://img.shields.io/github/forks/jayprajapati857/ngx-uploader-directive?style=social)](https://github.com/jayprajapati857/ngx-uploader-directive)
 
-Angular 9 File Uploader Directive which provides two directives, which are select and file drag and drop to upload files on server.
+Angular File Uploader Directive which provides two directives, which are select and file drag and drop to upload files on server.
 
 Facilities provided by this directives:
 
@@ -366,6 +366,10 @@ npm install
 
 npm start
 ```
+
+## Read more
+
+[Medium.com](https://jay-prajapati.medium.com/how-to-upload-files-in-angular-7-8-9-10-and-11-using-ngx-uploader-directive-b95456239f78)
 
 ## Changelog
 
